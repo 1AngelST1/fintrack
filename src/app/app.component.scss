@@ -1,0 +1,13 @@
+@use './shared/styles/variables' as *;
+
+.layout {
+  display: flex;
+}
+
+.content {
+  margin-left: 220px;
+  padding: 2rem;
+  flex: 1;
+  background-color: $color-bg;
+  min-height: calc(100vh - 120px);
+}

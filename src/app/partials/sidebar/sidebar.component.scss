@@ -1,6 +1,9 @@
+@use 'sass:color';
+@use '../../shared/styles/variables' as *;
+
 .sidebar {
   width: 220px;
-  background-color: darken($color-bg-card, 3%);
+  background-color: color.scale($color-bg-card, $lightness: -3%);
   height: calc(100vh - 60px);
   padding-top: 1rem;
   box-shadow: $shadow-card;
