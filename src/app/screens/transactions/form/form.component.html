@@ -1,24 +1,34 @@
 <section class="form-container">
   <h2>Registrar Movimiento</h2>
 
-  <form>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <label>Tipo</label>
-    <select>
-      <option>Ingreso</option>
-      <option>Gasto</option>
+    <select formControlName="tipo">
+      <option value="Ingreso">Ingreso</option>
+      <option value="Gasto">Gasto</option>
     </select>
+    <div class="error" *ngIf="f['tipo'].touched && f['tipo'].invalid">
+      <small>Campo obligatorio.</small>
+    </div>
 
     <label>Categoría</label>
-    <input type="text" />
+    <input type="text" formControlName="categoria" />
+    <div class="error" *ngIf="f['categoria'].touched && f['categoria'].invalid">
+      <small>Campo obligatorio.</small>
+    </div>
 
     <label>Monto</label>
-    <input type="number" />
+    <input type="number" formControlName="monto" />
+    <div class="error" *ngIf="f['monto'].touched && f['monto'].invalid">
+      <small *ngIf="f['monto'].errors?.['required']">Campo obligatorio.</small>
+      <small *ngIf="f['monto'].errors?.['min']">El monto debe ser mayor a 0.</small>
+    </div>
 
     <label>Fecha</label>
-    <input type="date" />
+    <input type="date" formControlName="fecha" />
 
     <label>Descripción</label>
-    <textarea></textarea>
+    <textarea formControlName="descripcion"></textarea>
 
     <button type="submit">Guardar</button>
   </form>

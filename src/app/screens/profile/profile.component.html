@@ -1,15 +1,21 @@
 <section class="form-container">
   <h2>Perfil de Usuario</h2>
 
-  <form>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <label>Nombre</label>
-    <input type="text" />
+    <input type="text" formControlName="nombre" />
+    <div class="error" *ngIf="f['nombre'].touched && f['nombre'].invalid">
+      <small>Campo obligatorio.</small>
+    </div>
 
     <label>Correo</label>
-    <input type="email" disabled />
+    <input type="email" formControlName="correo" [disabled]="true" />
 
     <label>Contraseña nueva</label>
-    <input type="password" />
+    <input type="password" formControlName="password" />
+    <div class="error" *ngIf="f['password'].touched && f['password'].invalid">
+      <small>Mínimo 6 caracteres.</small>
+    </div>
 
     <button type="submit">Actualizar</button>
   </form>

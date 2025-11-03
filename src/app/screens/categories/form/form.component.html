@@ -1,18 +1,21 @@
 <section class="form-container">
   <h2>Registrar Categoría</h2>
 
-  <form>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <label>Nombre</label>
-    <input type="text" />
+    <input type="text" formControlName="nombre" />
+    <div class="error" *ngIf="f['nombre'].touched && f['nombre'].invalid">
+      <small>Campo obligatorio.</small>
+    </div>
 
     <label>Tipo</label>
-    <select>
-      <option>Ingreso</option>
-      <option>Gasto</option>
+    <select formControlName="tipo">
+      <option value="Ingreso">Ingreso</option>
+      <option value="Gasto">Gasto</option>
     </select>
 
     <label>Color</label>
-    <input type="color" value="#4f8ef7" />
+    <input type="color" formControlName="color" />
 
     <button type="submit">Guardar</button>
   </form>
