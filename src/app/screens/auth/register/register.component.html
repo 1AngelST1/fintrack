@@ -1,65 +1,93 @@
-<section class="auth-form">
-  <h2>Crear Cuenta</h2>
+<div class="register-container">
+  <div class="form-card">
+    <h2>Crear Cuenta</h2>
+    <p class="form-subtitle">Completa el formulario para comenzar</p>
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <!-- Nombre -->
-    <label for="nombre">Nombre</label>
-    <input id="nombre" type="text" formControlName="nombre" />
-    <div class="error" *ngIf="f['nombre'].touched && f['nombre'].invalid">
-      <small>El nombre es obligatorio.</small>
-    </div>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nombre">
+            <span class="label-icon">👤</span>
+            Nombre
+          </label>
+          <input id="nombre" type="text" formControlName="nombre" placeholder="Ingresa tu nombre" />
+          <div class="error" *ngIf="f['nombre'].touched && f['nombre'].invalid">
+            <small>El nombre es obligatorio.</small>
+          </div>
+        </div>
 
-    <!-- Apellidos -->
-    <label for="apellidos">Apellidos</label>
-    <input id="apellidos" type="text" formControlName="apellidos" />
-    <div class="error" *ngIf="f['apellidos'].touched && f['apellidos'].invalid">
-      <small>Los apellidos son obligatorios.</small>
-    </div>
+        <div class="form-group">
+          <label for="apellidos">
+            <span class="label-icon">👥</span>
+            Apellidos
+          </label>
+          <input id="apellidos" type="text" formControlName="apellidos" placeholder="Ingresa tus apellidos" />
+          <div class="error" *ngIf="f['apellidos'].touched && f['apellidos'].invalid">
+            <small>Los apellidos son obligatorios.</small>
+          </div>
+        </div>
+      </div>
 
-    <!-- Correo -->
-    <label for="correo">Correo</label>
-    <input id="correo" type="email" formControlName="correo" />
-    <div class="error" *ngIf="f['correo'].touched && f['correo'].invalid">
-      <small *ngIf="f['correo'].errors?.['required']">El correo es obligatorio.</small>
-      <small *ngIf="f['correo'].errors?.['email']">Correo no válido.</small>
-      <small *ngIf="f['correo'].errors?.['emailExists']">Este correo ya está registrado.</small>
-    </div>
-    <div class="info" *ngIf="f['correo'].pending">
-      <small>Verificando correo...</small>
-    </div>
+      <div class="form-group">
+        <label for="correo">
+          <span class="label-icon">📧</span>
+          Correo Electrónico
+        </label>
+        <input id="correo" type="email" formControlName="correo" placeholder="correo@ejemplo.com" />
+        <div class="error" *ngIf="f['correo'].touched && f['correo'].invalid">
+          <small *ngIf="f['correo'].errors?.['required']">El correo es obligatorio.</small>
+          <small *ngIf="f['correo'].errors?.['email']">Correo no válido.</small>
+          <small *ngIf="f['correo'].errors?.['emailExists']">Este correo ya está registrado.</small>
+        </div>
+        <div class="info" *ngIf="f['correo'].pending">
+          <small>⏳ Verificando disponibilidad...</small>
+        </div>
+      </div>
 
-    <!-- Contraseña -->
-    <label for="password">Contraseña</label>
-    <input id="password" type="password" formControlName="password" />
-    <div class="error" *ngIf="f['password'].touched && f['password'].invalid">
-      <small *ngIf="f['password'].errors?.['required']">Contraseña obligatoria.</small>
-      <small *ngIf="f['password'].errors?.['minlength']">Mínimo 6 caracteres.</small>
-    </div>
+      <div class="form-group">
+        <label for="password">
+          <span class="label-icon">🔐</span>
+          Contraseña
+        </label>
+        <input id="password" type="password" formControlName="password" placeholder="Mínimo 6 caracteres" />
+        <div class="error" *ngIf="f['password'].touched && f['password'].invalid">
+          <small *ngIf="f['password'].errors?.['required']">Contraseña obligatoria.</small>
+          <small *ngIf="f['password'].errors?.['minlength']">Mínimo 6 caracteres.</small>
+        </div>
+      </div>
 
-    <!-- Confirmar contraseña -->
-    <label for="confirmar">Confirmar Contraseña</label>
-    <input id="confirmar" type="password" formControlName="confirmar" />
-    <div class="error" *ngIf="form.errors?.['mismatch'] && f['confirmar'].touched">
-      <small>Las contraseñas no coinciden.</small>
-    </div>
+      <div class="form-group">
+        <label for="confirmar">
+          <span class="label-icon">✔️</span>
+          Confirmar Contraseña
+        </label>
+        <input id="confirmar" type="password" formControlName="confirmar" placeholder="Repite tu contraseña" />
+        <div class="error" *ngIf="form.errors?.['mismatch'] && f['confirmar'].touched">
+          <small>Las contraseñas no coinciden.</small>
+        </div>
+      </div>
 
-    <!-- Mensajes -->
-    <div class="success" *ngIf="successMsg">
-      <small>{{ successMsg }}</small>
-    </div>
-    <div class="error" *ngIf="errorMsg">
-      <small>{{ errorMsg }}</small>
-    </div>
+      <div class="success" *ngIf="successMsg">
+        <small>✅ {{ successMsg }}</small>
+      </div>
+      <div class="error" *ngIf="errorMsg">
+        <small>❌ {{ errorMsg }}</small>
+      </div>
 
-    <button type="submit" [disabled]="isLoading || form.pending || form.invalid">
-      <span *ngIf="isLoading">Registrando...</span>
-      <span *ngIf="!isLoading && form.pending">Verificando...</span>
-      <span *ngIf="!isLoading && !form.pending">Registrar</span>
-    </button>
+      <button type="submit" class="btn-register" [disabled]="isLoading || form.pending || form.invalid">
+        <span *ngIf="isLoading">⏳ Registrando...</span>
+        <span *ngIf="!isLoading && form.pending">🔍 Verificando...</span>
+        <span *ngIf="!isLoading && !form.pending">🚀 Crear Cuenta</span>
+      </button>
 
-    <p class="login-link">
-      ¿Ya tienes cuenta?
-      <a routerLink="/auth/login">Inicia sesión</a>
-    </p>
-  </form>
-</section>
+      <div class="divider">
+        <span>o</span>
+      </div>
+
+      <p class="login-link">
+        ¿Ya tienes cuenta?
+        <a routerLink="/auth/login">Inicia sesión aquí</a>
+      </p>
+    </form>
+  </div>
+</div>
