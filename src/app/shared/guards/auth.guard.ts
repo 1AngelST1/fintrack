@@ -1,12 +1,14 @@
 import { inject } from '@angular/core';
-import { Router, CanActivateFn } from '@angular/router';
+import { Router, CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
-export const AuthGuard: CanActivateFn = () => {
+export const AuthGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
   const auth = inject(AuthService);
   const router = inject(Router);
+  
   if (!auth.isLoggedIn()) {
-    router.navigate(['/auth/login']);
+    // Guardamos la ruta a la que el usuario intentó acceder
+    router.navigate(['/auth/login'], { queryParams: { returnUrl: state.url } });
     return false;
   }
   return true;

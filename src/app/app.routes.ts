@@ -1,68 +1,92 @@
 import { Routes } from '@angular/router';
-import { LandingComponent } from './screens/landing/landing.component';
-import { LoginComponent } from './screens/auth/login/login.component';
-import { RegisterComponent } from './screens/auth/register/register.component';
 import { AuthGuard } from './shared/guards/auth.guard';
+import { PublicGuard } from './shared/guards/public.guard';
 import { RoleGuard } from './shared/guards/role.guard';
+import { PublicLayoutComponent } from './layouts/public-layout/public-layout.component';
+import { PrivateLayoutComponent } from './layouts/private-layout/private-layout.component';
 
 export const routes: Routes = [
-  { path: '', component: LandingComponent },
-
-  // Publicas
-  { path: 'auth/login', component: LoginComponent },
-  { path: 'auth/register', component: RegisterComponent },
-
-  // Dashboard (lazy load)
+  // =============== RUTAS PÚBLICAS ===============
   {
-    path: 'dashboard',
-    loadComponent: () => import('./screens/dashboard/dashboard.component').then(m => m.DashboardComponent),
-    canActivate: [AuthGuard]
+    path: '',
+    component: PublicLayoutComponent,
+    canActivate: [PublicGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./screens/landing/landing.component').then(m => m.LandingComponent)
+      },
+      {
+        path: 'auth/login',
+        loadComponent: () => import('./screens/auth/login/login.component').then(m => m.LoginComponent)
+      },
+      {
+        path: 'auth/register',
+        loadComponent: () => import('./screens/auth/register/register.component').then(m => m.RegisterComponent)
+      }
+    ]
   },
 
-  // Transactions (lazy load, protegido)
+  // =============== RUTAS PRIVADAS (PROTEGIDAS) ===============
   {
-    path: 'transactions',
-    loadComponent: () => import('./screens/transactions/list/list.component').then(m => m.ListComponent),
+    path: '',
+    component: PrivateLayoutComponent,
     canActivate: [AuthGuard],
     children: [
+      // Dashboard
       {
-        path: 'form',
-        loadComponent: () => import('./screens/transactions/form/form.component').then(m => m.FormComponent),
-        canActivate: [AuthGuard]
-      }
-    ]
-  },
+        path: 'dashboard',
+        loadComponent: () => import('./screens/dashboard/dashboard.component').then(m => m.DashboardComponent)
+      },
 
-  // Categories: solo admin (lazy + guard por rol)
-  {
-    path: 'categories',
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['admin'] },
-    loadComponent: () => import('./screens/categories/list/list.component').then(m => m.ListComponent),
-    children: [
+      // Transactions
       {
-        path: 'form',
-        canActivate: [AuthGuard, RoleGuard],
+        path: 'transactions',
+        loadComponent: () => import('./screens/transactions/list/list.component').then(m => m.ListComponent)
+      },
+      {
+        path: 'transactions/form',
+        loadComponent: () => import('./screens/transactions/form/form.component').then(m => m.FormComponent)
+      },
+      {
+        path: 'transactions/form/:id',
+        loadComponent: () => import('./screens/transactions/form/form.component').then(m => m.FormComponent)
+      },
+
+      // Categories (solo admin)
+      {
+        path: 'categories',
+        canActivate: [RoleGuard],
+        data: { roles: ['admin'] },
+        loadComponent: () => import('./screens/categories/list/list.component').then(m => m.ListComponent)
+      },
+      {
+        path: 'categories/form',
+        canActivate: [RoleGuard],
         data: { roles: ['admin'] },
         loadComponent: () => import('./screens/categories/form/form.component').then(m => m.FormComponent)
+      },
+      {
+        path: 'categories/form/:id',
+        canActivate: [RoleGuard],
+        data: { roles: ['admin'] },
+        loadComponent: () => import('./screens/categories/form/form.component').then(m => m.FormComponent)
+      },
+
+      // Reports
+      {
+        path: 'reports',
+        loadComponent: () => import('./screens/reports/reports.component').then(m => m.ReportsComponent)
+      },
+
+      // Profile
+      {
+        path: 'profile',
+        loadComponent: () => import('./screens/profile/profile.component').then(m => m.ProfileComponent)
       }
     ]
   },
 
-  // Reports (lazy)
-  {
-    path: 'reports',
-    loadComponent: () => import('./screens/reports/reports.component').then(m => m.ReportsComponent),
-    canActivate: [AuthGuard]
-  },
-
-  // Profile (lazy)
-  {
-    path: 'profile',
-    loadComponent: () => import('./screens/profile/profile.component').then(m => m.ProfileComponent),
-    canActivate: [AuthGuard]
-  },
-
-  // fallback
+  // =============== FALLBACK ===============
   { path: '**', redirectTo: '' }
 ];

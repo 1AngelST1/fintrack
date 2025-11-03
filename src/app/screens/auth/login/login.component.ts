@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -13,26 +13,37 @@ import { AuthService } from '../../../services/auth.service';
 export class LoginComponent {
   form: FormGroup;
   errorMsg = '';
+  returnUrl = '/dashboard';
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private auth: AuthService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {
     this.form = this.fb.group({
       correo: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
+
+    const q = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (q) this.returnUrl = q;
   }
 
   get f() { return this.form.controls; }
 
   onSubmit() {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
+    if (this.form.invalid) { 
+      this.form.markAllAsTouched(); 
+      return; 
     }
-
-    const { correo, password } = this.form.value;
+    
+    const correo = this.form.value.correo as string;
+    const password = this.form.value.password as string;
+    
     this.auth.login(correo, password).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
-      error: (err) => this.errorMsg = err.message || 'Error de inicio de sesión'
+      next: () => this.router.navigateByUrl(this.returnUrl),
+      error: err => this.errorMsg = err.message || 'Error de inicio de sesión'
     });
   }
 }
