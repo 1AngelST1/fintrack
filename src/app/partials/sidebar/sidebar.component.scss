@@ -8,28 +8,112 @@
   padding-top: 1rem;
   box-shadow: $shadow-card;
   position: fixed;
-  top: 60px;
+  top: 60px; /* Justo debajo del navbar */
   left: 0;
+  transition: width 0.3s ease, transform 0.3s ease;
+  overflow-x: hidden;
+  overflow-y: auto; /* Permitir scroll si el contenido es muy largo */
+  z-index: 999; /* Menor que el navbar (1000) pero mayor que el contenido */
+
+  // Estado colapsado
+  &.collapsed {
+    width: 60px;
+
+    .text {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+    }
+
+    .toggle-btn {
+      justify-content: center;
+    }
+
+    a {
+      justify-content: center;
+      padding: 0.6rem 0.5rem;
+    }
+  }
+}
+
+.toggle-btn {
+  background: $color-accent;
+  color: white;
+  border: none;
+  width: calc(100% - 1rem);
+  margin: 0 0.5rem 1rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+
+  &:hover {
+    background-color: color.scale($color-accent, $lightness: 10%);
+    transform: scale(1.05);
+  }
+
+  span {
+    transition: transform 0.3s ease;
+  }
 }
 
 .sidebar ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .sidebar li {
-  margin: 1rem 0;
+  margin: 0.5rem 0;
 }
 
 .sidebar a {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
   color: $color-text;
   padding: 0.6rem 1.2rem;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  white-space: nowrap;
+
+  .icon {
+    font-size: 1.2rem;
+    min-width: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .text {
+    transition: opacity 0.3s ease, width 0.3s ease;
+    overflow: hidden;
+  }
+
+  &:hover {
+    background-color: color.scale($color-accent, $lightness: -10%);
+    color: white;
+    padding-left: 1.5rem;
+  }
+
+  &.active {
+    background-color: $color-accent;
+    color: white;
+    border-left: 4px solid color.scale($color-accent, $lightness: 20%);
+  }
 }
 
-.sidebar a:hover, .sidebar a.active {
-  background-color: $color-accent;
-  color: white;
-  border-radius: 6px;
+// Responsive: ocultar en móviles
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+
+    &:not(.collapsed) {
+      transform: translateX(0);
+    }
+  }
 }

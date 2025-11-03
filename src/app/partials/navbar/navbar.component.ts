@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { SidebarService } from '../../services/sidebar.service';
 
 @Component({
   selector: 'app-navbar',
@@ -9,6 +10,8 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {
+  sidebarService = inject(SidebarService);
+
   constructor(
     private auth: AuthService,
     private router: Router
@@ -17,5 +20,9 @@ export class NavbarComponent {
   onLogout() {
     this.auth.logout();
     this.router.navigate(['/']);
+  }
+
+  toggleSidebar() {
+    this.sidebarService.toggle();
   }
 }

@@ -23,8 +23,11 @@ export class RegisterComponent {
       nombre: ['', Validators.required],
       apellidos: ['', Validators.required],
       correo: ['', 
-        [Validators.required, Validators.email],
-        [this.emailExistsValidator()]
+        {
+          validators: [Validators.required, Validators.email],
+          asyncValidators: [this.emailExistsValidator()],
+          updateOn: 'blur' // Valida al perder el foco, no en cada tecla
+        }
       ],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmar: ['', Validators.required],
@@ -58,6 +61,12 @@ export class RegisterComponent {
   get f() { return this.form.controls; }
 
   onSubmit() {
+    // Verificar si hay validaciones asíncronas en proceso
+    if (this.form.pending) {
+      console.log('Esperando validación asíncrona...');
+      return;
+    }
+
     if (this.form.invalid || this.isLoading) {
       this.form.markAllAsTouched();
       return;
@@ -70,6 +79,7 @@ export class RegisterComponent {
     this.auth.register(this.form.value).subscribe({
       next: () => {
         this.successMsg = 'Cuenta creada correctamente';
+        this.form.reset(); // Limpiar el formulario
         setTimeout(() => this.router.navigate(['/auth/login']), 1500);
       },
       error: (err) => {

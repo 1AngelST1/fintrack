@@ -1,13 +1,4 @@
 @use './shared/styles/variables' as *;
 
-.layout {
-  display: flex;
-}
-
-.content {
-  margin-left: 220px;
-  padding: 2rem;
-  flex: 1;
-  background-color: $color-bg;
-  min-height: calc(100vh - 120px);
-}
+// Los estilos de layout ahora están en private-layout y public-layout
+// Este archivo se mantiene limpio para evitar conflictos

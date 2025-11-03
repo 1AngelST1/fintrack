@@ -51,8 +51,10 @@
       <small>{{ errorMsg }}</small>
     </div>
 
-    <button type="submit" [disabled]="isLoading">
-      {{ isLoading ? 'Registrando...' : 'Registrar' }}
+    <button type="submit" [disabled]="isLoading || form.pending || form.invalid">
+      <span *ngIf="isLoading">Registrando...</span>
+      <span *ngIf="!isLoading && form.pending">Verificando...</span>
+      <span *ngIf="!isLoading && !form.pending">Registrar</span>
     </button>
 
     <p class="login-link">
