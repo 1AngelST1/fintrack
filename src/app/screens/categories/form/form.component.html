@@ -1,22 +1,144 @@
-<section class="form-container">
-  <h2>Registrar Categoría</h2>
+<section class="category-form">
+  <div class="form-header">
+    <h2>{{ isEditMode ? '✏️ Editar Categoría' : '➕ Nueva Categoría' }}</h2>
+    <button class="btn btn-secondary" (click)="onCancel()" type="button">
+      ← Volver
+    </button>
+  </div>
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <label>Nombre</label>
-    <input type="text" formControlName="nombre" />
-    <div class="error" *ngIf="f['nombre'].touched && f['nombre'].invalid">
-      <small>Campo obligatorio.</small>
+  <!-- Mensajes de alerta -->
+  @if (successMessage) {
+    <div class="alert alert-success">
+      ✓ {{ successMessage }}
     </div>
+  }
 
-    <label>Tipo</label>
-    <select formControlName="tipo">
-      <option value="Ingreso">Ingreso</option>
-      <option value="Gasto">Gasto</option>
-    </select>
+  @if (errorMessage) {
+    <div class="alert alert-error">
+      ✗ {{ errorMessage }}
+    </div>
+  }
 
-    <label>Color</label>
-    <input type="color" formControlName="color" />
+  @if (loading) {
+    <div class="loading">
+      <p>Cargando...</p>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-card">
+      <!-- Nombre -->
+      <div class="form-group">
+        <label for="nombre">
+          <span class="label-icon">📝</span>
+          Nombre de la Categoría
+        </label>
+        <input 
+          type="text" 
+          id="nombre"
+          formControlName="nombre" 
+          placeholder="Ej: Alimentación, Transporte..."
+          class="form-control"
+          [class.invalid]="f['nombre'].touched && f['nombre'].invalid"
+        />
+        @if (f['nombre'].touched && f['nombre'].invalid) {
+          <div class="error-message">
+            @if (f['nombre'].errors?.['required']) {
+              <small>El nombre es obligatorio</small>
+            }
+            @if (f['nombre'].errors?.['minlength']) {
+              <small>El nombre debe tener al menos 3 caracteres</small>
+            }
+          </div>
+        }
+      </div>
 
-    <button type="submit">Guardar</button>
-  </form>
+      <!-- Tipo -->
+      <div class="form-group">
+        <label for="tipo">
+          <span class="label-icon">📊</span>
+          Tipo
+        </label>
+        <select 
+          id="tipo"
+          formControlName="tipo"
+          class="form-control"
+        >
+          <option value="Ingreso">💰 Ingreso</option>
+          <option value="Gasto">💸 Gasto</option>
+        </select>
+      </div>
+
+      <!-- Color (selector con paleta) -->
+      <div class="form-group">
+        <label for="color">
+          <span class="label-icon">🎨</span>
+          Color
+        </label>
+        
+        <div class="color-selector">
+          <div class="color-palette">
+            @for (color of availableColors; track color) {
+              <div 
+                class="color-option"
+                [style.background-color]="color"
+                [class.selected]="form.value.color === color"
+                (click)="form.patchValue({ color: color })"
+                [title]="color">
+              </div>
+            }
+          </div>
+          
+          <div class="color-input-group">
+            <input 
+              type="color" 
+              id="color"
+              formControlName="color"
+              class="color-picker"
+            />
+            <input 
+              type="text" 
+              [value]="form.value.color"
+              readonly
+              class="color-hex"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado (solo en modo edición) -->
+      @if (isEditMode) {
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              formControlName="estado"
+              class="checkbox-input"
+            />
+            <span class="checkbox-text">
+              <span class="label-icon">✓</span>
+              Categoría activa
+            </span>
+          </label>
+          <small class="help-text">
+            Las categorías inactivas no aparecerán en los formularios de transacciones
+          </small>
+        </div>
+      }
+
+      <!-- Botones -->
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn btn-primary"
+          [disabled]="form.invalid || loading">
+          {{ isEditMode ? '💾 Actualizar' : '➕ Crear' }} Categoría
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-secondary"
+          (click)="onCancel()">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  }
 </section>

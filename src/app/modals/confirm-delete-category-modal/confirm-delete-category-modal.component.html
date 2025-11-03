@@ -1,1 +1,55 @@
-<p>confirm-delete-category-modal works!</p>
+@if (isOpen) {
+  <div class="modal-overlay" (click)="onCancel()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        @if (hasTransactions) {
+          <h2>⚠️ Categoría con Transacciones</h2>
+        } @else {
+          <h2>🗑️ Confirmar Eliminación</h2>
+        }
+        <button class="close-btn" (click)="onCancel()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        @if (hasTransactions) {
+          <div class="warning-message">
+            <p class="warning-icon">⚠️</p>
+            <p class="warning-text">
+              La categoría <strong>{{ categoryName }}</strong> tiene 
+              <strong>{{ transactionCount }}</strong> 
+              {{ transactionCount === 1 ? 'transacción asociada' : 'transacciones asociadas' }}.
+            </p>
+            <p class="info-text">
+              No se puede eliminar esta categoría. En su lugar, será <strong>inactivada</strong> 
+              para mantener la integridad de los datos históricos.
+            </p>
+          </div>
+        } @else {
+          <div class="confirm-message">
+            <p class="confirm-icon">🗑️</p>
+            <p>
+              ¿Está seguro que desea eliminar la categoría 
+              <strong>{{ categoryName }}</strong>?
+            </p>
+            <p class="info-text">Esta acción no se puede deshacer.</p>
+          </div>
+        }
+      </div>
+
+      <div class="modal-footer">
+        @if (hasTransactions) {
+          <button class="btn btn-warning" (click)="onConfirm()">
+            Inactivar Categoría
+          </button>
+        } @else {
+          <button class="btn btn-danger" (click)="onConfirm()">
+            Eliminar
+          </button>
+        }
+        <button class="btn btn-secondary" (click)="onCancel()">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+}

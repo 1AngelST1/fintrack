@@ -1,28 +1,93 @@
 <section class="categories">
-  <h2>Categorías</h2>
-  <button routerLink="/categories/form">+ Nueva Categoría</button>
+  <!-- Alert Message -->
+  @if (showAlert) {
+    <div class="alert" [class.alert-success]="alertType === 'success'" 
+         [class.alert-warning]="alertType === 'warning'"
+         [class.alert-error]="alertType === 'error'">
+      {{ alertMessage }}
+      <button class="alert-close" (click)="showAlert = false">&times;</button>
+    </div>
+  }
 
-  <table>
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Tipo</th>
-        <th>Color</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let c of [1,2,3]">
-        <td>Alimentación</td>
-        <td>Gasto</td>
-        <td><div class="color" style="background:#4f8ef7"></div></td>
-        <td>Activo</td>
-        <td>
-          <button>✏️</button>
-          <button class="danger">🗑️</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="header">
+    <h2>📁 Categorías</h2>
+    <button class="btn btn-primary" routerLink="/categories/form">
+      ➕ Nueva Categoría
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="loading">
+      <p>Cargando categorías...</p>
+    </div>
+  } @else if (categorias.length === 0) {
+    <div class="no-data">
+      <p>No hay categorías registradas</p>
+      <button class="btn btn-primary" routerLink="/categories/form">
+        Crear primera categoría
+      </button>
+    </div>
+  } @else {
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Color</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (categoria of categorias; track categoria.id) {
+            <tr [class.inactive]="!categoria.estado">
+              <td>{{ categoria.nombre }}</td>
+              <td>
+                <span class="badge" [class.badge-ingreso]="categoria.tipo === 'Ingreso'"
+                      [class.badge-gasto]="categoria.tipo === 'Gasto'">
+                  {{ categoria.tipo }}
+                </span>
+              </td>
+              <td>
+                <div class="color-indicator" [style.background-color]="categoria.color">
+                  {{ categoria.color }}
+                </div>
+              </td>
+              <td>
+                <span class="status" [class.status-active]="categoria.estado"
+                      [class.status-inactive]="!categoria.estado">
+                  {{ categoria.estado ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="actions">
+                <button class="btn btn-edit" 
+                        [routerLink]="['/categories/form', categoria.id]"
+                        title="Editar">
+                  ✏️
+                </button>
+                @if (categoria.estado) {
+                  <button class="btn btn-delete" 
+                          (click)="onDeleteClick(categoria)"
+                          title="Eliminar">
+                    🗑️
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
 </section>
+
+<!-- Modal de confirmación -->
+<app-confirm-delete-category-modal
+  [isOpen]="isModalOpen"
+  [categoryName]="selectedCategory?.nombre || ''"
+  [hasTransactions]="hasTransactions"
+  [transactionCount]="transactionCount"
+  (confirm)="onConfirmDelete()"
+  (cancel)="onCancelDelete()">
+</app-confirm-delete-category-modal>

@@ -1,41 +1,274 @@
-@use '../../../shared/styles/variables' as *;
-
-// Estilos de formulario
-.auth-form {
-  max-width: 400px;
-  margin: 5rem auto;
-  background-color: $color-bg-card;
+.category-form {
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: $shadow-card;
-  text-align: left;
+  max-width: 800px;
+  margin: 0 auto;
 
-  h2 {
-    text-align: center;
-    color: $color-accent;
+  .form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    h2 {
+      color: #f0f0f0;
+      font-size: 2rem;
+      margin: 0;
+    }
   }
 
-  form {
-    display: flex;
-    flex-direction: column;
-    margin-top: 1rem;
+  .alert {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    animation: slideDown 0.3s ease;
 
-    label {
-      margin-top: 1rem;
-      font-weight: 500;
+    &.alert-success {
+      background: rgba(39, 174, 96, 0.1);
+      border-left: 4px solid #27ae60;
+      color: #27ae60;
     }
 
-    input, select, textarea {
-      background-color: $color-bg;
-      color: $color-text;
-      border: 1px solid #444;
-      border-radius: 6px;
-      padding: 0.6rem;
-      margin-top: 0.3rem;
+    &.alert-error {
+      background: rgba(231, 76, 60, 0.1);
+      border-left: 4px solid #e74c3c;
+      color: #e74c3c;
+    }
+  }
+
+  .loading {
+    text-align: center;
+    padding: 3rem;
+    color: #b0b0b0;
+  }
+
+  .form-card {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+
+    .form-group {
+      margin-bottom: 1.5rem;
+
+      label {
+        display: block;
+        color: #b0b0b0;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+
+        .label-icon {
+          margin-right: 0.5rem;
+        }
+      }
+
+      .form-control {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 0.75rem;
+        color: #f0f0f0;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+
+        &:focus {
+          outline: none;
+          border-color: #4f8ef7;
+          background: rgba(255, 255, 255, 0.08);
+          box-shadow: 0 0 0 3px rgba(79, 142, 247, 0.1);
+        }
+
+        &.invalid {
+          border-color: #e74c3c;
+        }
+
+        &::placeholder {
+          color: #6c757d;
+        }
+      }
+
+      select.form-control {
+        cursor: pointer;
+
+        option {
+          background: #1a1a2e;
+          color: #f0f0f0;
+        }
+      }
+
+      .error-message {
+        margin-top: 0.5rem;
+
+        small {
+          color: #e74c3c;
+          font-size: 0.8rem;
+        }
+      }
+
+      .color-selector {
+        .color-palette {
+          display: grid;
+          grid-template-columns: repeat(10, 1fr);
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+
+          .color-option {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+
+            &:hover {
+              transform: scale(1.1);
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            }
+
+            &.selected {
+              border-color: #f0f0f0;
+              box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+              transform: scale(1.15);
+            }
+          }
+        }
+
+        .color-input-group {
+          display: flex;
+          gap: 1rem;
+          align-items: center;
+
+          .color-picker {
+            width: 60px;
+            height: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+          }
+
+          .color-hex {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.75rem;
+            color: #f0f0f0;
+            font-family: monospace;
+            font-size: 1rem;
+            text-align: center;
+          }
+        }
+      }
+
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+
+        .checkbox-input {
+          width: 20px;
+          height: 20px;
+          margin-right: 0.75rem;
+          cursor: pointer;
+        }
+
+        .checkbox-text {
+          color: #f0f0f0;
+          font-size: 1rem;
+        }
+      }
+
+      .help-text {
+        display: block;
+        color: #6c757d;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+        margin-left: 2rem;
+      }
     }
 
-    button {
-      margin-top: 1.5rem;
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+
+      .btn {
+        flex: 1;
+        padding: 0.875rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &.btn-primary {
+          background: linear-gradient(135deg, #4f8ef7 0%, #6a5acd 100%);
+          color: white;
+
+          &:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 142, 247, 0.4);
+          }
+
+          &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+        }
+
+        &.btn-secondary {
+          background: rgba(255, 255, 255, 0.05);
+          color: #f0f0f0;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.1);
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .category-form {
+    padding: 1rem;
+
+    .form-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .form-card {
+      padding: 1.5rem;
+
+      .form-group {
+        .color-selector {
+          .color-palette {
+            grid-template-columns: repeat(5, 1fr);
+          }
+        }
+      }
+
+      .form-actions {
+        flex-direction: column;
+      }
     }
   }
 }
