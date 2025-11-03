@@ -1,0 +1,50 @@
+@use '../../../shared/styles/variables' as *;
+
+// Reutilizar los mismos estilos que login
+.auth-form {
+  max-width: 400px;
+  margin: 5rem auto;
+  background-color: $color-bg-card;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: $shadow-card;
+  text-align: left;
+
+  h2 {
+    text-align: center;
+    color: $color-accent;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+
+    .form-group {
+      margin-bottom: 1.2rem;
+
+      label {
+        display: block;
+        margin-bottom: 0.4rem;
+        font-weight: 500;
+      }
+
+      input {
+        width: 100%;
+        padding: 0.6rem;
+        border: 1px solid #555;
+        border-radius: 6px;
+        background-color: $color-bg;
+        color: $color-text;
+
+        &:focus {
+          outline: none;
+          border-color: $color-accent;
+        }
+      }
+    }
+
+    button {
+      margin-top: 0.5rem;
+    }
+  }
+}

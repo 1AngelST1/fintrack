@@ -1,1 +1,25 @@
-<p>register works!</p>
+<section class="auth-form">
+  <h2>Crear Cuenta</h2>
+
+  <form>
+    <label>Nombre</label>
+    <input type="text" placeholder="Nombre" required />
+
+    <label>Apellidos</label>
+    <input type="text" placeholder="Apellidos" required />
+
+    <label>Correo</label>
+    <input type="email" placeholder="usuario@correo.com" required />
+
+    <label>Contraseña</label>
+    <input type="password" placeholder="********" required />
+
+    <label>Confirmar Contraseña</label>
+    <input type="password" placeholder="********" required />
+
+    <button type="submit">Registrar</button>
+    <p class="login-link">
+      ¿Ya tienes cuenta? <a routerLink="/auth/login">Inicia sesión</a>
+    </p>
+  </form>
+</section>
