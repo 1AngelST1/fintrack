@@ -71,4 +71,16 @@ export class AuthService {
   isLoggedIn(): boolean {
     return !!localStorage.getItem('token');
   }
+
+  /** ACTUALIZAR PERFIL */
+  updateProfile(userId: number, updates: Partial<Usuario>): Observable<Usuario> {
+    return this.http.patch<Usuario>(`${this.api}/${userId}`, updates).pipe(
+      map(updatedUser => {
+        // Actualizar usuario en localStorage
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        return updatedUser;
+      }),
+      delay(300)
+    );
+  }
 }
