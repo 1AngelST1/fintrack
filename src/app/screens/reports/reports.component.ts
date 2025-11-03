@@ -169,11 +169,8 @@ export class ReportsComponent implements OnInit {
       filters.fechaHasta = this.fechaHasta;
     }
 
-    console.log('🔍 Cargando reportes con filtros:', filters);
-
     // Cargar gráfico de pastel (gastos por categoría)
     this.reportsService.getExpensesByCategory(filters).subscribe(data => {
-      console.log('📊 Gastos por categoría:', data);
       // Crear nuevo objeto para forzar detección de cambios
       this.pieChartData = {
         labels: Object.keys(data),
@@ -197,7 +194,6 @@ export class ReportsComponent implements OnInit {
 
     // Cargar gráfico de línea (evolución mensual)
     this.reportsService.getMonthlyEvolution(filters).subscribe(data => {
-      console.log('📈 Evolución mensual:', data);
       const labels = data.map(d => {
         // Formatear mes: "2024-01" -> "Enero 2024"
         const [year, month] = d.mes.split('-');

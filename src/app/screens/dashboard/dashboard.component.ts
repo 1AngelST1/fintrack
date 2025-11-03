@@ -7,10 +7,12 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
 import { Movimiento } from '../../shared/interfaces/movimiento';
 import { Usuario } from '../../shared/interfaces/usuario';
+import { CurrencyFormatPipe } from '../../shared/pipes/currency-format.pipe';
+import { DateFormatPipe } from '../../shared/pipes/date-format.pipe';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, BaseChartDirective, RouterLink],
+  imports: [CommonModule, BaseChartDirective, RouterLink, CurrencyFormatPipe, DateFormatPipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })

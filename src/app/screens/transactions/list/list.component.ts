@@ -8,10 +8,12 @@ import { CategoriesService } from '../../../services/categories.service';
 import { Movimiento } from '../../../shared/interfaces/movimiento';
 import { Categoria } from '../../../shared/interfaces/categoria';
 import { Usuario } from '../../../shared/interfaces/usuario';
+import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
+import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 
 @Component({
   selector: 'app-list',
-  imports: [RouterLink, CommonModule, FormsModule],
+  imports: [RouterLink, CommonModule, FormsModule, CurrencyFormatPipe, DateFormatPipe],
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss'
 })

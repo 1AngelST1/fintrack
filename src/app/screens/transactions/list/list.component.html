@@ -85,9 +85,9 @@
           </td>
           <td>{{ m.categoria }}</td>
           <td class="monto" [class]="getTipoClass(m.tipo)">
-            {{ m.tipo === 'Ingreso' ? '+' : '-' }}${{ m.monto | number:'1.2-2' }}
+            {{ m.tipo === 'Ingreso' ? '+' : '-' }}{{ m.monto | moneda }}
           </td>
-          <td>{{ m.fecha }}</td>
+          <td>{{ m.fecha | fecha }}</td>
           <td>{{ m.descripcion || '-' }}</td>
           <td *ngIf="isAdmin">Usuario #{{ m.usuarioId }}</td>
           <td class="actions">

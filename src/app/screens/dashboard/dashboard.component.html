@@ -22,7 +22,7 @@
         <span class="icon">📈</span>
         <h3>Ingresos</h3>
       </div>
-      <p class="amount">${{ ingresos | number:'1.2-2' }}</p>
+      <p class="amount">{{ ingresos | moneda }}</p>
       <span class="label">Total del mes</span>
     </div>
 
@@ -32,7 +32,7 @@
         <span class="icon">📉</span>
         <h3>Gastos</h3>
       </div>
-      <p class="amount">${{ gastos | number:'1.2-2' }}</p>
+      <p class="amount">{{ gastos | moneda }}</p>
       <span class="label">Total del mes</span>
     </div>
 
@@ -43,7 +43,7 @@
         <h3>Balance</h3>
       </div>
       <p class="amount">
-        {{ balance >= 0 ? '+' : '' }}${{ balance | number:'1.2-2' }}
+        {{ balance >= 0 ? '+' : '' }}{{ balance | moneda }}
       </p>
       <span class="label">{{ getBalanceMessage() }}</span>
     </div>
@@ -89,11 +89,11 @@
             </span>
             <div class="transaction-details">
               <strong>{{ t.categoria }}</strong>
-              <small>{{ t.fecha }} {{ t.descripcion ? '• ' + t.descripcion : '' }}</small>
+              <small>{{ t.fecha | fecha }} {{ t.descripcion ? '• ' + t.descripcion : '' }}</small>
             </div>
           </div>
           <div class="transaction-amount" [class]="getTipoClass(t.tipo)">
-            {{ t.tipo === 'Ingreso' ? '+' : '-' }}${{ t.monto | number:'1.2-2' }}
+            {{ t.tipo === 'Ingreso' ? '+' : '-' }}{{ t.monto | moneda }}
           </div>
         </div>
       </div>
