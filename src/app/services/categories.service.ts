@@ -8,7 +8,7 @@ import { Categoria } from '../shared/interfaces/categoria';
   providedIn: 'root'
 })
 export class CategoriesService {
-  private apiUrl = `${environment.apiUrl}/categorias`;
+  private apiUrl = `${environment.apiUrl}/categories`;
 
   constructor(private http: HttpClient) { }
 

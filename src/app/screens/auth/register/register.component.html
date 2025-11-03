@@ -22,6 +22,10 @@
     <div class="error" *ngIf="f['correo'].touched && f['correo'].invalid">
       <small *ngIf="f['correo'].errors?.['required']">El correo es obligatorio.</small>
       <small *ngIf="f['correo'].errors?.['email']">Correo no válido.</small>
+      <small *ngIf="f['correo'].errors?.['emailExists']">Este correo ya está registrado.</small>
+    </div>
+    <div class="info" *ngIf="f['correo'].pending">
+      <small>Verificando correo...</small>
     </div>
 
     <!-- Contraseña -->
@@ -39,7 +43,17 @@
       <small>Las contraseñas no coinciden.</small>
     </div>
 
-    <button type="submit">Registrar</button>
+    <!-- Mensajes -->
+    <div class="success" *ngIf="successMsg">
+      <small>{{ successMsg }}</small>
+    </div>
+    <div class="error" *ngIf="errorMsg">
+      <small>{{ errorMsg }}</small>
+    </div>
+
+    <button type="submit" [disabled]="isLoading">
+      {{ isLoading ? 'Registrando...' : 'Registrar' }}
+    </button>
 
     <p class="login-link">
       ¿Ya tienes cuenta?

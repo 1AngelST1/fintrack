@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Observable, of, throwError } from 'rxjs';
-import { map, delay } from 'rxjs/operators';
+import { map, delay, switchMap, catchError } from 'rxjs/operators';
 import { Usuario } from '../shared/interfaces/usuario';
 
 @Injectable({ providedIn: 'root' })
@@ -34,9 +34,25 @@ export class AuthService {
     );
   }
 
+  /** VERIFICAR SI CORREO YA EXISTE */
+  checkEmailExists(correo: string): Observable<boolean> {
+    return this.http.get<Usuario[]>(`${this.api}?correo=${correo}`).pipe(
+      map(users => users.length > 0)
+    );
+  }
+
   /** REGISTRO */
   register(user: Usuario): Observable<Usuario> {
-    return this.http.post<Usuario>(this.api, user).pipe(delay(500));
+    // Primero verificamos si el correo ya existe
+    return this.checkEmailExists(user.correo).pipe(
+      switchMap(exists => {
+        if (exists) {
+          return throwError(() => new Error('El correo ya está registrado'));
+        }
+        return this.http.post<Usuario>(this.api, user);
+      }),
+      delay(500)
+    );
   }
 
   /** LOGOUT */

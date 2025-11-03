@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CategoriesService } from '../../../services/categories.service';
-import { AuthService } from '../../../services/auth.service';
 import { Categoria } from '../../../shared/interfaces/categoria';
 
 @Component({
@@ -16,8 +15,7 @@ export class ListComponent implements OnInit {
   loading: boolean = false;
 
   constructor(
-    private categoriesService: CategoriesService,
-    private authService: AuthService
+    private categoriesService: CategoriesService
   ) {}
 
   ngOnInit() {
@@ -26,31 +24,18 @@ export class ListComponent implements OnInit {
 
   loadCategorias() {
     this.loading = true;
-    const currentUser = this.authService.getCurrentUser();
     
-    if (currentUser?.id) {
-      this.categoriesService.getByUserId(currentUser.id).subscribe({
-        next: (data) => {
-          this.categorias = data;
-          this.loading = false;
-        },
-        error: (err) => {
-          console.error('Error al cargar categorías:', err);
-          this.loading = false;
-        }
-      });
-    } else {
-      this.categoriesService.getAll().subscribe({
-        next: (data) => {
-          this.categorias = data;
-          this.loading = false;
-        },
-        error: (err) => {
-          console.error('Error al cargar categorías:', err);
-          this.loading = false;
-        }
-      });
-    }
+    // Cargar todas las categorías (son compartidas entre usuarios)
+    this.categoriesService.getAll().subscribe({
+      next: (data) => {
+        this.categorias = data;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar categorías:', err);
+        this.loading = false;
+      }
+    });
   }
 
   deleteCategoria(id: number) {

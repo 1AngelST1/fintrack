@@ -47,4 +47,16 @@
       margin-top: 0.5rem;
     }
   }
+
+  .info {
+    margin-top: 0.5rem;
+    color: #3498db;
+    font-size: 0.875rem;
+
+    small {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
 }

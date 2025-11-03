@@ -14,6 +14,7 @@ export class LoginComponent {
   form: FormGroup;
   errorMsg = '';
   returnUrl = '/dashboard';
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -33,17 +34,23 @@ export class LoginComponent {
   get f() { return this.form.controls; }
 
   onSubmit() {
-    if (this.form.invalid) { 
+    if (this.form.invalid || this.isLoading) { 
       this.form.markAllAsTouched(); 
       return; 
     }
+    
+    this.isLoading = true;
+    this.errorMsg = '';
     
     const correo = this.form.value.correo as string;
     const password = this.form.value.password as string;
     
     this.auth.login(correo, password).subscribe({
       next: () => this.router.navigateByUrl(this.returnUrl),
-      error: err => this.errorMsg = err.message || 'Error de inicio de sesión'
+      error: err => {
+        this.errorMsg = err.message || 'Error de inicio de sesión';
+        this.isLoading = false;
+      }
     });
   }
 }

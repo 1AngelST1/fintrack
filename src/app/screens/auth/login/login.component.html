@@ -28,15 +28,19 @@
       <small *ngIf="f['password'].errors?.['minlength']">Mínimo 6 caracteres.</small>
     </div>
 
-    <button type="submit">Entrar</button>
+    <!-- Mensaje de error -->
+    <div class="error" *ngIf="errorMsg">
+      <small>{{ errorMsg }}</small>
+    </div>
+
+    <button type="submit" [disabled]="isLoading">
+      {{ isLoading ? 'Iniciando sesión...' : 'Entrar' }}
+    </button>
 
     <p class="register-link">
       ¿No tienes cuenta?
       <a routerLink="/auth/register">Regístrate aquí</a>
     </p>
-    
-    <p class="error-msg" *ngIf="errorMsg">{{ errorMsg }}</p>
-    <button type="submit">Entrar</button>
 
   </form>
 </section>
