@@ -1,35 +1,124 @@
 <section class="form-container">
-  <h2>Registrar Movimiento</h2>
+  <div class="form-header">
+    <h2>{{ isEditMode ? '✏️ Editar Movimiento' : '➕ Nuevo Movimiento' }}</h2>
+    <button class="btn-back" (click)="onCancel()">← Volver</button>
+  </div>
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <label>Tipo</label>
-    <select formControlName="tipo">
-      <option value="Ingreso">Ingreso</option>
-      <option value="Gasto">Gasto</option>
-    </select>
-    <div class="error" *ngIf="f['tipo'].touched && f['tipo'].invalid">
-      <small>Campo obligatorio.</small>
+  <div *ngIf="loading" class="loading">
+    <p>⏳ Cargando...</p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!loading">
+    <div class="form-grid">
+      <!-- Tipo -->
+      <div class="form-group">
+        <label for="tipo">
+          <span class="label-icon">📊</span>
+          Tipo de Movimiento
+        </label>
+        <select id="tipo" formControlName="tipo" (change)="onTipoChange()">
+          <option value="Ingreso">💰 Ingreso</option>
+          <option value="Gasto">💸 Gasto</option>
+        </select>
+        <div class="error" *ngIf="f['tipo'].touched && f['tipo'].invalid">
+          <small>El tipo es obligatorio.</small>
+        </div>
+      </div>
+
+      <!-- Categoría -->
+      <div class="form-group">
+        <label for="categoria">
+          <span class="label-icon">🏷️</span>
+          Categoría
+        </label>
+        <select id="categoria" formControlName="categoria">
+          <option value="">Selecciona una categoría</option>
+          <option 
+            *ngFor="let cat of categoriasFiltradas" 
+            [value]="cat.nombre"
+          >
+            {{ cat.nombre }}
+          </option>
+        </select>
+        <div class="error" *ngIf="f['categoria'].touched && f['categoria'].invalid">
+          <small>La categoría es obligatoria.</small>
+        </div>
+      </div>
+
+      <!-- Monto -->
+      <div class="form-group">
+        <label for="monto">
+          <span class="label-icon">💵</span>
+          Monto
+        </label>
+        <input 
+          type="number" 
+          id="monto" 
+          formControlName="monto" 
+          placeholder="0.00"
+          step="0.01"
+          min="0.01"
+        />
+        <div class="error" *ngIf="f['monto'].touched && f['monto'].invalid">
+          <small *ngIf="f['monto'].errors?.['required']">El monto es obligatorio.</small>
+          <small *ngIf="f['monto'].errors?.['min']">El monto debe ser mayor a 0.</small>
+        </div>
+      </div>
+
+      <!-- Fecha -->
+      <div class="form-group">
+        <label for="fecha">
+          <span class="label-icon">📅</span>
+          Fecha
+        </label>
+        <input 
+          type="date" 
+          id="fecha" 
+          formControlName="fecha"
+        />
+        <div class="error" *ngIf="f['fecha'].touched && f['fecha'].invalid">
+          <small *ngIf="f['fecha'].errors?.['required']">La fecha es requerida.</small>
+          <small *ngIf="f['fecha'].errors?.['fechaFutura']">No se permiten fechas futuras.</small>
+        </div>
+      </div>
     </div>
 
-    <label>Categoría</label>
-    <input type="text" formControlName="categoria" />
-    <div class="error" *ngIf="f['categoria'].touched && f['categoria'].invalid">
-      <small>Campo obligatorio.</small>
+    <!-- Descripción -->
+    <div class="form-group full-width">
+      <label for="descripcion">
+        <span class="label-icon">📝</span>
+        Descripción (Opcional)
+      </label>
+      <textarea 
+        id="descripcion" 
+        formControlName="descripcion"
+        rows="4"
+        placeholder="Añade detalles sobre este movimiento..."
+      ></textarea>
     </div>
 
-    <label>Monto</label>
-    <input type="number" formControlName="monto" />
-    <div class="error" *ngIf="f['monto'].touched && f['monto'].invalid">
-      <small *ngIf="f['monto'].errors?.['required']">Campo obligatorio.</small>
-      <small *ngIf="f['monto'].errors?.['min']">El monto debe ser mayor a 0.</small>
+    <!-- Mensajes -->
+    <div class="success" *ngIf="successMsg">
+      <small>✅ {{ successMsg }}</small>
+    </div>
+    <div class="error" *ngIf="errorMsg">
+      <small>❌ {{ errorMsg }}</small>
     </div>
 
-    <label>Fecha</label>
-    <input type="date" formControlName="fecha" />
-
-    <label>Descripción</label>
-    <textarea formControlName="descripcion"></textarea>
-
-    <button type="submit">Guardar</button>
+    <!-- Botones -->
+    <div class="form-actions">
+      <button type="button" class="btn-cancel" (click)="onCancel()">
+        Cancelar
+      </button>
+      <button 
+        type="submit" 
+        class="btn-submit" 
+        [disabled]="loading || form.invalid"
+      >
+        <span *ngIf="loading">⏳ Guardando...</span>
+        <span *ngIf="!loading && isEditMode">💾 Actualizar</span>
+        <span *ngIf="!loading && !isEditMode">💾 Guardar</span>
+      </button>
+    </div>
   </form>
 </section>

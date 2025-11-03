@@ -1,30 +1,121 @@
 <section class="transactions">
-  <h2>Movimientos Financieros</h2>
-  <button routerLink="/transactions/form">+ Nuevo Movimiento</button>
+  <div class="header">
+    <h2>💰 Movimientos Financieros</h2>
+    <button class="btn-primary" routerLink="/transactions/form">+ Nuevo Movimiento</button>
+  </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Tipo</th>
-        <th>Categoría</th>
-        <th>Monto</th>
-        <th>Fecha</th>
-        <th>Descripción</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let m of [1,2,3]">
-        <td>Gasto</td>
-        <td>Transporte</td>
-        <td>$500</td>
-        <td>2025-10-28</td>
-        <td>Taxi</td>
-        <td>
-          <button>✏️</button>
-          <button class="danger">🗑️</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <!-- Filtros -->
+  <div class="filters-card">
+    <h3>🔍 Filtros</h3>
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label for="tipo">Tipo</label>
+        <select id="tipo" [(ngModel)]="filtros.tipo" (change)="aplicarFiltros()">
+          <option value="">Todos</option>
+          <option value="Ingreso">Ingresos</option>
+          <option value="Gasto">Gastos</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="categoria">Categoría</label>
+        <select id="categoria" [(ngModel)]="filtros.categoria" (change)="aplicarFiltros()">
+          <option value="">Todas</option>
+          <option *ngFor="let cat of categorias" [value]="cat.nombre">{{ cat.nombre }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="fechaDesde">Desde</label>
+        <input 
+          type="date" 
+          id="fechaDesde" 
+          [(ngModel)]="filtros.fechaDesde"
+          (change)="aplicarFiltros()"
+        />
+      </div>
+
+      <div class="filter-group">
+        <label for="fechaHasta">Hasta</label>
+        <input 
+          type="date" 
+          id="fechaHasta" 
+          [(ngModel)]="filtros.fechaHasta"
+          (change)="aplicarFiltros()"
+        />
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn-secondary" (click)="limpiarFiltros()">🔄 Limpiar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    <p>⏳ Cargando transacciones...</p>
+  </div>
+
+  <!-- Sin resultados -->
+  <div *ngIf="!loading && transacciones.length === 0" class="no-data">
+    <p>📭 No se encontraron transacciones</p>
+    <button class="btn-primary" routerLink="/transactions/form">Crear la primera</button>
+  </div>
+
+  <!-- Tabla de transacciones -->
+  <div *ngIf="!loading && transacciones.length > 0" class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Categoría</th>
+          <th>Monto</th>
+          <th>Fecha</th>
+          <th>Descripción</th>
+          <th *ngIf="isAdmin">Usuario</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of transacciones">
+          <td>
+            <span class="badge" [class]="getTipoClass(m.tipo)">
+              {{ m.tipo === 'Ingreso' ? '📈' : '📉' }} {{ m.tipo }}
+            </span>
+          </td>
+          <td>{{ m.categoria }}</td>
+          <td class="monto" [class]="getTipoClass(m.tipo)">
+            {{ m.tipo === 'Ingreso' ? '+' : '-' }}${{ m.monto | number:'1.2-2' }}
+          </td>
+          <td>{{ m.fecha }}</td>
+          <td>{{ m.descripcion || '-' }}</td>
+          <td *ngIf="isAdmin">Usuario #{{ m.usuarioId }}</td>
+          <td class="actions">
+            <button 
+              *ngIf="canEdit(m)"
+              class="btn-edit" 
+              [routerLink]="['/transactions/form', m.id]"
+              title="Editar"
+            >
+              ✏️
+            </button>
+            <button 
+              *ngIf="canEdit(m)"
+              class="btn-delete" 
+              (click)="onDelete(m.id)"
+              title="Eliminar"
+            >
+              🗑️
+            </button>
+            <span *ngIf="!canEdit(m)" class="no-actions">-</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Resumen -->
+  <div *ngIf="!loading && transacciones.length > 0" class="summary">
+    <p>📊 Total de transacciones: <strong>{{ transacciones.length }}</strong></p>
+  </div>
 </section>
