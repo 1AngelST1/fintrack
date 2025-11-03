@@ -1,19 +1,121 @@
 <section class="landing">
+  <!-- Hero Section -->
   <div class="hero">
-    <h1>Bienvenido a <span>Fintrack2</span></h1>
-    <p>Controla tus ingresos y gastos fácilmente desde una sola plataforma.</p>
-    <div class="actions">
-      <button routerLink="/auth/login">Iniciar Sesión</button>
-      <button routerLink="/auth/register" class="secondary">Crear Cuenta</button>
+    <div class="hero-content">
+      <h1 class="animate-fade-in">Bienvenido a <span class="gradient-text">Fintrack2</span></h1>
+      <p class="hero-subtitle">Controla tus ingresos y gastos fácilmente desde una sola plataforma.</p>
+      <p class="hero-description">
+        La solución definitiva para gestionar tus finanzas personales y alcanzar tus metas económicas.
+      </p>
+      
+      <div class="actions">
+        <button routerLink="/auth/register" class="btn-primary">
+          <span>Comenzar Gratis</span>
+          <span class="arrow">→</span>
+        </button>
+        <button routerLink="/auth/login" class="btn-secondary">
+          Iniciar Sesión
+        </button>
+      </div>
+
+      <div class="trust-badges">
+        <span>✓ Sin tarjeta de crédito</span>
+        <span>✓ Gratis para siempre</span>
+        <span>✓ Configuración en 2 minutos</span>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="demo-chart">
+        <canvas baseChart
+          [data]="chartData"
+          [options]="chartOptions"
+          type="line">
+        </canvas>
+      </div>
     </div>
   </div>
 
+  <!-- Stats Section -->
+  <div class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card" *ngFor="let stat of stats">
+        <h3>{{ stat.value }}</h3>
+        <p>{{ stat.label }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <div class="features-section">
+    <h2 class="section-title">¿Por qué elegir <span>Fintrack2</span>?</h2>
+    <p class="section-subtitle">Todo lo que necesitas para tomar control de tus finanzas</p>
+    
+    <div class="features-grid">
+      <div class="feature-card" *ngFor="let feature of features">
+        <div class="feature-icon">{{ feature.icon }}</div>
+        <h3>{{ feature.title }}</h3>
+        <p>{{ feature.description }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Demo Stats -->
   <div class="demo-stats">
-    <h3>Ejemplo de estadísticas globales</h3>
+    <h2 class="section-title">Ejemplo de tu Dashboard</h2>
+    <p class="section-subtitle">Así se verá tu panel de control financiero</p>
+    
     <div class="cards">
-      <div class="card"><h4>Ingresos</h4><p>$12,450</p></div>
-      <div class="card"><h4>Gastos</h4><p>$8,900</p></div>
-      <div class="card"><h4>Balance</h4><p>+$3,550</p></div>
+      <div class="card income">
+        <div class="card-icon">💰</div>
+        <h4>Ingresos</h4>
+        <p class="amount">$12,450</p>
+        <span class="trend positive">+12.5% vs mes anterior</span>
+      </div>
+      <div class="card expense">
+        <div class="card-icon">💸</div>
+        <h4>Gastos</h4>
+        <p class="amount">$8,900</p>
+        <span class="trend neutral">-5.2% vs mes anterior</span>
+      </div>
+      <div class="card balance">
+        <div class="card-icon">📊</div>
+        <h4>Balance</h4>
+        <p class="amount positive">+$3,550</p>
+        <span class="trend positive">Superávit saludable</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Testimonials Section -->
+  <div class="testimonials-section">
+    <h2 class="section-title">Lo que dicen nuestros usuarios</h2>
+    <p class="section-subtitle">Miles de personas ya confían en Fintrack2</p>
+    
+    <div class="testimonials-grid">
+      <div class="testimonial-card" *ngFor="let testimonial of testimonials">
+        <div class="quote-icon">"</div>
+        <p class="comment">{{ testimonial.comment }}</p>
+        <div class="author">
+          <div class="author-photo">{{ testimonial.photo }}</div>
+          <div class="author-info">
+            <h4>{{ testimonial.name }}</h4>
+            <p>{{ testimonial.role }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA Section -->
+  <div class="cta-section">
+    <h2>¿Listo para tomar control de tus finanzas?</h2>
+    <p>Únete a miles de usuarios que ya están alcanzando sus metas financieras</p>
+    <div class="cta-actions">
+      <button routerLink="/auth/register" class="btn-cta">
+        Crear Cuenta Gratis
+      </button>
+      <p class="cta-note">No se requiere tarjeta de crédito • Configuración instantánea</p>
     </div>
   </div>
 </section>
