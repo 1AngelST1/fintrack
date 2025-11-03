@@ -1,0 +1,32 @@
+.sidebar {
+  width: 220px;
+  background-color: darken($color-bg-card, 3%);
+  height: calc(100vh - 60px);
+  padding-top: 1rem;
+  box-shadow: $shadow-card;
+  position: fixed;
+  top: 60px;
+  left: 0;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  margin: 1rem 0;
+}
+
+.sidebar a {
+  display: block;
+  color: $color-text;
+  padding: 0.6rem 1.2rem;
+  transition: background-color 0.2s;
+}
+
+.sidebar a:hover, .sidebar a.active {
+  background-color: $color-accent;
+  color: white;
+  border-radius: 6px;
+}

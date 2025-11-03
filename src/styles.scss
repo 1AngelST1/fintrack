@@ -1,1 +1,33 @@
-/* You can add global styles to this file, and also import other style files */
+@import './app/shared/styles/variables';
+
+html, body {
+  background-color: $color-bg;
+  color: $color-text;
+  font-family: $font-main;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+a {
+  color: $color-accent;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  background-color: $color-accent;
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: lighten($color-accent, 10%);
+}

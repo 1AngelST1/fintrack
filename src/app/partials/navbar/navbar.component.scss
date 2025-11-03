@@ -1,0 +1,30 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: $color-bg-card;
+  padding: 1rem 2rem;
+  box-shadow: $shadow-card;
+}
+
+.logo {
+  color: $color-accent;
+  font-weight: bold;
+  font-size: 1.4rem;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+
+  a {
+    color: $color-text;
+    font-weight: 500;
+  }
+
+  .logout {
+    background-color: $color-danger;
+    padding: 0.5rem 1rem;
+  }
+}
