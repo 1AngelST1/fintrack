@@ -1,46 +1,60 @@
-<section class="auth-form">
-  <h2>Iniciar Sesión</h2>
+<div class="login-container">
+  <div class="form-card">
+    <h2>Iniciar Sesión</h2>
+    <p class="form-subtitle">Bienvenido de nuevo a Fintrack2</p>
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <!-- Correo -->
-    <label for="correo">Correo</label>
-    <input
-      id="correo"
-      type="email"
-      placeholder="usuario@correo.com"
-      formControlName="correo"
-    />
-    <div class="error" *ngIf="f['correo'].touched && f['correo'].invalid">
-      <small *ngIf="f['correo'].errors?.['required']">El correo es obligatorio.</small>
-      <small *ngIf="f['correo'].errors?.['email']">Formato de correo inválido.</small>
-    </div>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="correo">
+          <span class="label-icon">📧</span>
+          Correo Electrónico
+        </label>
+        <input
+          id="correo"
+          type="email"
+          placeholder="correo@ejemplo.com"
+          formControlName="correo"
+        />
+        <div class="error" *ngIf="f['correo'].touched && f['correo'].invalid">
+          <small *ngIf="f['correo'].errors?.['required']">El correo es obligatorio.</small>
+          <small *ngIf="f['correo'].errors?.['email']">Formato de correo inválido.</small>
+        </div>
+      </div>
 
-    <!-- Contraseña -->
-    <label for="password">Contraseña</label>
-    <input
-      id="password"
-      type="password"
-      placeholder="********"
-      formControlName="password"
-    />
-    <div class="error" *ngIf="f['password'].touched && f['password'].invalid">
-      <small *ngIf="f['password'].errors?.['required']">La contraseña es obligatoria.</small>
-      <small *ngIf="f['password'].errors?.['minlength']">Mínimo 6 caracteres.</small>
-    </div>
+      <div class="form-group">
+        <label for="password">
+          <span class="label-icon">🔐</span>
+          Contraseña
+        </label>
+        <input
+          id="password"
+          type="password"
+          placeholder="Ingresa tu contraseña"
+          formControlName="password"
+        />
+        <div class="error" *ngIf="f['password'].touched && f['password'].invalid">
+          <small *ngIf="f['password'].errors?.['required']">La contraseña es obligatoria.</small>
+          <small *ngIf="f['password'].errors?.['minlength']">Mínimo 6 caracteres.</small>
+        </div>
+      </div>
 
-    <!-- Mensaje de error -->
-    <div class="error" *ngIf="errorMsg">
-      <small>{{ errorMsg }}</small>
-    </div>
+      <div class="error" *ngIf="errorMsg">
+        <small>❌ {{ errorMsg }}</small>
+      </div>
 
-    <button type="submit" [disabled]="isLoading">
-      {{ isLoading ? 'Iniciando sesión...' : 'Entrar' }}
-    </button>
+      <button type="submit" class="btn-login" [disabled]="isLoading || form.invalid">
+        <span *ngIf="isLoading">⏳ Iniciando sesión...</span>
+        <span *ngIf="!isLoading">🚀 Entrar</span>
+      </button>
 
-    <p class="register-link">
-      ¿No tienes cuenta?
-      <a routerLink="/auth/register">Regístrate aquí</a>
-    </p>
+      <div class="divider">
+        <span>o</span>
+      </div>
 
-  </form>
-</section>
+      <p class="register-link">
+        ¿No tienes cuenta?
+        <a routerLink="/auth/register">Regístrate aquí</a>
+      </p>
+    </form>
+  </div>
+</div>

@@ -1,46 +1,170 @@
 @use '../../../shared/styles/variables' as *;
 
-.auth-form {
-  max-width: 400px;
-  margin: 5rem auto;
-  background-color: $color-bg-card;
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #2c3e50, #34495e);
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: $shadow-card;
-  text-align: left;
 
-  h2 {
-    text-align: center;
-    color: $color-accent;
+  .form-card {
+    background-color: #1a1a1a;
+    padding: 3rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 450px;
+    border: 1px solid #333;
+
+    h2 {
+      text-align: center;
+      color: $color-accent;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-subtitle {
+      text-align: center;
+      color: #bdc3c7;
+      margin-bottom: 2rem;
+    }
+
+    form {
+      .form-group {
+        margin-bottom: 1.5rem;
+
+        label {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 0.5rem;
+          font-weight: 600;
+          color: #ecf0f1;
+          font-size: 0.9rem;
+
+          .label-icon {
+            font-size: 1.2rem;
+          }
+        }
+
+        input {
+          width: 100%;
+          padding: 0.8rem 1rem;
+          border: 2px solid #333;
+          border-radius: 8px;
+          background-color: #2c3e50;
+          color: #ecf0f1;
+          font-size: 1rem;
+          transition: all 0.3s;
+
+          &:focus {
+            outline: none;
+            border-color: $color-accent;
+            background-color: #34495e;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+          }
+
+          &::placeholder {
+            color: #7f8c8d;
+          }
+        }
+
+        .error {
+          margin-top: 0.4rem;
+          color: #e74c3c;
+          font-size: 0.85rem;
+
+          small {
+            display: block;
+          }
+        }
+      }
+
+      .error {
+        margin-bottom: 1rem;
+        padding: 0.8rem;
+        background-color: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
+        border-radius: 8px;
+        text-align: center;
+        border: 1px solid #e74c3c;
+      }
+
+      .btn-login {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, $color-accent, #2ecc71);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 1rem;
+
+        &:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 5px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+
+      .divider {
+        margin: 1.5rem 0;
+        text-align: center;
+        position: relative;
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background-color: #444;
+        }
+
+        span {
+          background-color: #1a1a1a;
+          padding: 0 1rem;
+          color: #7f8c8d;
+          position: relative;
+          z-index: 1;
+        }
+      }
+
+      .register-link {
+        text-align: center;
+        color: #bdc3c7;
+        margin-top: 1rem;
+
+        a {
+          color: $color-accent;
+          text-decoration: none;
+          font-weight: 600;
+          transition: color 0.3s;
+
+          &:hover {
+            color: #2ecc71;
+            text-decoration: underline;
+          }
+        }
+      }
+    }
   }
 
-  form {
-    display: flex;
-    flex-direction: column;
-    margin-top: 1rem;
+  // Responsive
+  @media (max-width: 768px) {
+    padding: 1rem;
 
-    label {
-      margin-top: 1rem;
-      font-weight: 500;
-    }
-
-    input {
-      background-color: $color-bg;
-      color: $color-text;
-      border: 1px solid #444;
-      border-radius: 6px;
-      padding: 0.6rem;
-      margin-top: 0.3rem;
-    }
-
-    button {
-      margin-top: 1.5rem;
-    }
-
-    .register-link {
-      text-align: center;
-      margin-top: 1rem;
-      font-size: 0.9rem;
+    .form-card {
+      padding: 2rem;
     }
   }
 }
