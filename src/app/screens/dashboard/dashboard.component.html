@@ -1,17 +1,125 @@
 <section class="dashboard">
-  <h2>Resumen Financiero</h2>
-
-  <div class="stats">
-    <div class="card"><h3>Ingresos</h3><p>${{ ingresos }}</p></div>
-    <div class="card"><h3>Gastos</h3><p>${{ gastos }}</p></div>
-    <div class="card"><h3>Balance</h3><p>${{ balance }}</p></div>
+  <div class="dashboard-header">
+    <div>
+      <h2>📊 Dashboard Financiero</h2>
+      <p class="subtitle">Balance de {{ mesActual }}</p>
+    </div>
+    <button class="btn-new-transaction" routerLink="/transactions/form">
+      + Nueva Transacción
+    </button>
   </div>
 
-  <div class="chart-container">
-    <canvas baseChart
-      [data]="barChartData"
-      [options]="barChartOptions"
-      chartType="bar">
-    </canvas>
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    <p>⏳ Cargando datos...</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div *ngIf="!loading" class="stats-grid">
+    <!-- Ingresos -->
+    <div class="stat-card ingreso">
+      <div class="stat-header">
+        <span class="icon">📈</span>
+        <h3>Ingresos</h3>
+      </div>
+      <p class="amount">${{ ingresos | number:'1.2-2' }}</p>
+      <span class="label">Total del mes</span>
+    </div>
+
+    <!-- Gastos -->
+    <div class="stat-card gasto">
+      <div class="stat-header">
+        <span class="icon">📉</span>
+        <h3>Gastos</h3>
+      </div>
+      <p class="amount">${{ gastos | number:'1.2-2' }}</p>
+      <span class="label">Total del mes</span>
+    </div>
+
+    <!-- Balance -->
+    <div class="stat-card balance" [ngClass]="{ positive: balance >= 0, negative: balance < 0 }">
+      <div class="stat-header">
+        <span class="icon">{{ getBalanceIcon() }}</span>
+        <h3>Balance</h3>
+      </div>
+      <p class="amount">
+        {{ balance >= 0 ? '+' : '' }}${{ balance | number:'1.2-2' }}
+      </p>
+      <span class="label">{{ getBalanceMessage() }}</span>
+    </div>
+  </div>
+
+  <!-- Charts and Recent Transactions -->
+  <div *ngIf="!loading" class="dashboard-content">
+    <!-- Gráfica -->
+    <div class="chart-card">
+      <h3>📊 Balance Mensual</h3>
+      <div class="chart-container">
+        <canvas baseChart
+          [data]="barChartData"
+          [options]="barChartOptions"
+          chartType="bar">
+        </canvas>
+      </div>
+    </div>
+
+    <!-- Transacciones Recientes -->
+    <div class="recent-transactions-card">
+      <div class="card-header">
+        <h3>🕒 Transacciones Recientes</h3>
+        <a routerLink="/transactions" class="view-all">Ver todas →</a>
+      </div>
+      
+      <div *ngIf="transaccionesRecientes.length === 0" class="no-data">
+        <p>📭 No hay transacciones registradas</p>
+        <button class="btn-primary" routerLink="/transactions/form">
+          Crear la primera
+        </button>
+      </div>
+
+      <div *ngIf="transaccionesRecientes.length > 0" class="transactions-list">
+        <div 
+          *ngFor="let t of transaccionesRecientes" 
+          class="transaction-item"
+          [class]="getTipoClass(t.tipo)"
+        >
+          <div class="transaction-info">
+            <span class="transaction-type">
+              {{ t.tipo === 'Ingreso' ? '📈' : '📉' }}
+            </span>
+            <div class="transaction-details">
+              <strong>{{ t.categoria }}</strong>
+              <small>{{ t.fecha }} {{ t.descripcion ? '• ' + t.descripcion : '' }}</small>
+            </div>
+          </div>
+          <div class="transaction-amount" [class]="getTipoClass(t.tipo)">
+            {{ t.tipo === 'Ingreso' ? '+' : '-' }}${{ t.monto | number:'1.2-2' }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div *ngIf="!loading" class="quick-actions">
+    <h3>⚡ Acciones Rápidas</h3>
+    <div class="actions-grid">
+      <button class="action-card" routerLink="/transactions/form">
+        <span class="action-icon">➕</span>
+        <span>Nueva Transacción</span>
+      </button>
+      <button class="action-card" routerLink="/transactions">
+        <span class="action-icon">📋</span>
+        <span>Ver Transacciones</span>
+      </button>
+      <button class="action-card" routerLink="/reports">
+        <span class="action-icon">📊</span>
+        <span>Ver Reportes</span>
+      </button>
+      <button class="action-card" *ngIf="isAdmin" routerLink="/categories">
+        <span class="action-icon">🏷️</span>
+        <span>Gestionar Categorías</span>
+      </button>
+    </div>
   </div>
 </section>
