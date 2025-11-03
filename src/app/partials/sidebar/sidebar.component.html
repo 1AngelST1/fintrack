@@ -17,7 +17,7 @@
         <span class="text">Movimientos</span>
       </a>
     </li>
-    <li>
+    <li *ngIf="isAdmin">
       <a routerLink="/categories" routerLinkActive="active">
         <span class="icon">📂</span>
         <span class="text">Categorías</span>
