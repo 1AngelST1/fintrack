@@ -34,5 +34,9 @@
       ¿No tienes cuenta?
       <a routerLink="/auth/register">Regístrate aquí</a>
     </p>
+    
+    <p class="error-msg" *ngIf="errorMsg">{{ errorMsg }}</p>
+    <button type="submit">Entrar</button>
+
   </form>
 </section>

@@ -12,13 +12,17 @@ import { FormComponent as TransactionsFormComponent } from './screens/transactio
 import { ReportsComponent } from './screens/reports/reports.component';
 import { ProfileComponent } from './screens/profile/profile.component';
 
+import { AuthGuard } from './shared/guards/auth.guard';
+import { RoleGuard } from './shared/guards/role.guard';
+
 export const routes: Routes = [
   { path: '', component: LandingComponent },
   { path: 'auth/login', component: LoginComponent },
   { path: 'auth/register', component: RegisterComponent },
-  { path: 'dashboard', component: DashboardComponent },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   {
     path: 'categories',
+    canActivate: [RoleGuard],
     children: [
       { path: '', component: CategoriesListComponent },
       { path: 'form', component: CategoriesFormComponent },
@@ -26,11 +30,12 @@ export const routes: Routes = [
   },
   {
     path: 'transactions',
+    canActivate: [AuthGuard],
     children: [
       { path: '', component: TransactionsListComponent },
       { path: 'form', component: TransactionsFormComponent },
     ],
   },
-  { path: 'reports', component: ReportsComponent },
-  { path: 'profile', component: ProfileComponent },
+  { path: 'reports', component: ReportsComponent, canActivate: [AuthGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
 ];

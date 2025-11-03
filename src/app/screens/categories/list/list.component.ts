@@ -1,6 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { CategoriesService } from '../../../services/categories.service';
+import { AuthService } from '../../../services/auth.service';
+import { Categoria } from '../../../shared/interfaces/categoria';
 
 @Component({
   selector: 'app-list',
@@ -8,6 +11,57 @@ import { CommonModule } from '@angular/common';
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss'
 })
-export class ListComponent {
+export class ListComponent implements OnInit {
+  categorias: Categoria[] = [];
+  loading: boolean = false;
 
+  constructor(
+    private categoriesService: CategoriesService,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit() {
+    this.loadCategorias();
+  }
+
+  loadCategorias() {
+    this.loading = true;
+    const currentUser = this.authService.getCurrentUser();
+    
+    if (currentUser?.id) {
+      this.categoriesService.getByUserId(currentUser.id).subscribe({
+        next: (data) => {
+          this.categorias = data;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Error al cargar categorías:', err);
+          this.loading = false;
+        }
+      });
+    } else {
+      this.categoriesService.getAll().subscribe({
+        next: (data) => {
+          this.categorias = data;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Error al cargar categorías:', err);
+          this.loading = false;
+        }
+      });
+    }
+  }
+
+  deleteCategoria(id: number) {
+    if (confirm('¿Está seguro de eliminar esta categoría?')) {
+      this.categoriesService.delete(id).subscribe({
+        next: () => {
+          console.log('Categoría eliminada');
+          this.loadCategorias();
+        },
+        error: (err) => console.error('Error al eliminar:', err)
+      });
+    }
+  }
 }

@@ -1,9 +1,58 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
+import { Observable, of, throwError } from 'rxjs';
+import { map, delay } from 'rxjs/operators';
+import { Usuario } from '../shared/interfaces/usuario';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
+  private api = `${environment.apiUrl}/users`;
 
-  constructor() { }
+  constructor(private http: HttpClient) {}
+
+  /** LOGIN SIMULADO */
+  login(correo: string, password: string): Observable<any> {
+    return this.http.get<Usuario[]>(`${this.api}?correo=${correo}`).pipe(
+      map(users => {
+        const user = users[0];
+        if (!user) {
+          throw new Error('Usuario no encontrado');
+        }
+        if (user.password !== password) {
+          throw new Error('Contraseña incorrecta');
+        }
+
+        // Simulamos token JWT
+        const token = btoa(`${user.correo}:${new Date().getTime()}`);
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+
+        return { token, user };
+      }),
+      delay(500)
+    );
+  }
+
+  /** REGISTRO */
+  register(user: Usuario): Observable<Usuario> {
+    return this.http.post<Usuario>(this.api, user).pipe(delay(500));
+  }
+
+  /** LOGOUT */
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  }
+
+  /** OBTENER USUARIO ACTUAL */
+  getCurrentUser(): Usuario | null {
+    const data = localStorage.getItem('user');
+    return data ? JSON.parse(data) : null;
+  }
+
+  /** COMPROBAR SESIÓN */
+  isLoggedIn(): boolean {
+    return !!localStorage.getItem('token');
+  }
 }

@@ -1,7 +1,8 @@
-@use '../../shared/styles/variables' as *;
-
-.dashboard {
-  h2 {
-    color: $color-accent;
-  }
+.chart-container {
+  background-color: #ffffff;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 2rem auto;
 }

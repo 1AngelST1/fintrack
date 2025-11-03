@@ -2,13 +2,16 @@
   <h2>Resumen Financiero</h2>
 
   <div class="stats">
-    <div class="card"><h3>Ingresos</h3><p>$15,200</p></div>
-    <div class="card"><h3>Gastos</h3><p>$10,500</p></div>
-    <div class="card"><h3>Balance</h3><p>+$4,700</p></div>
+    <div class="card"><h3>Ingresos</h3><p>${{ ingresos }}</p></div>
+    <div class="card"><h3>Gastos</h3><p>${{ gastos }}</p></div>
+    <div class="card"><h3>Balance</h3><p>${{ balance }}</p></div>
   </div>
 
-  <div class="charts">
-    <div class="chart">[Gráfica Ingresos vs Gastos]</div>
-    <div class="chart">[Gráfica Evolución Mensual]</div>
+  <div class="chart-container">
+    <canvas baseChart
+      [data]="barChartData"
+      [options]="barChartOptions"
+      chartType="bar">
+    </canvas>
   </div>
 </section>
