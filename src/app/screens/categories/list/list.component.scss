@@ -1,0 +1,8 @@
+@use '../../../shared/styles/variables' as *;
+
+.transactions {
+  h2 {
+    color: $color-accent;
+  }
+}
+

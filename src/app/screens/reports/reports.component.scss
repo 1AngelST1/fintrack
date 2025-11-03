@@ -1,0 +1,7 @@
+@use '../../shared/styles/variables' as *;
+
+.dashboard {
+  h2 {
+    color: $color-accent;
+  }
+}

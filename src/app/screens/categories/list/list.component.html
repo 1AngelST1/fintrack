@@ -1,1 +1,28 @@
-<p>list works!</p>
+<section class="categories">
+  <h2>Categorías</h2>
+  <button routerLink="/categories/form">+ Nueva Categoría</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Tipo</th>
+        <th>Color</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let c of [1,2,3]">
+        <td>Alimentación</td>
+        <td>Gasto</td>
+        <td><div class="color" style="background:#4f8ef7"></div></td>
+        <td>Activo</td>
+        <td>
+          <button>✏️</button>
+          <button class="danger">🗑️</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>

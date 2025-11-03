@@ -1,1 +1,30 @@
-<p>list works!</p>
+<section class="transactions">
+  <h2>Movimientos Financieros</h2>
+  <button routerLink="/transactions/form">+ Nuevo Movimiento</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Tipo</th>
+        <th>Categoría</th>
+        <th>Monto</th>
+        <th>Fecha</th>
+        <th>Descripción</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let m of [1,2,3]">
+        <td>Gasto</td>
+        <td>Transporte</td>
+        <td>$500</td>
+        <td>2025-10-28</td>
+        <td>Taxi</td>
+        <td>
+          <button>✏️</button>
+          <button class="danger">🗑️</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>
