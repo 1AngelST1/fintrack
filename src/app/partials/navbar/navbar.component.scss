@@ -70,6 +70,37 @@
     }
   }
 
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba($color-accent, 0.1);
+    border-radius: 20px;
+    border: 1px solid rgba($color-accent, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba($color-accent, 0.2);
+      border-color: rgba($color-accent, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba($color-accent, 0.2);
+      color: $color-text; // Mantener color del texto
+    }
+
+    i {
+      color: $color-accent;
+      font-size: 1.2rem;
+    }
+
+    .user-name {
+      color: $color-text;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+  }
+
   .logout {
     background-color: $color-danger;
     color: white;
@@ -98,6 +129,14 @@
 
     a {
       display: none; // Ocultar links en móvil, solo mostrar logout
+    }
+
+    .user-info {
+      padding: 0.4rem 0.8rem;
+
+      .user-name {
+        font-size: 0.85rem;
+      }
     }
   }
 

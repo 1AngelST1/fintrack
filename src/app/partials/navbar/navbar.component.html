@@ -9,7 +9,12 @@
   <div class="navbar-right">
     <a routerLink="/dashboard">Dashboard</a>
     <a routerLink="/reports">Reportes</a>
-    <a routerLink="/profile">Perfil</a>
+    
+    <a routerLink="/profile" class="user-info" *ngIf="currentUser">
+      <i class="fas fa-user-circle"></i>
+      <span class="user-name">{{ currentUser.nombre }}</span>
+    </a>
+    
     <button class="logout" (click)="onLogout()">Salir</button>
   </div>
 </nav>
