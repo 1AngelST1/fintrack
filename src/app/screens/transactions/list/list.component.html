@@ -89,7 +89,7 @@
           </td>
           <td>{{ m.fecha | fecha }}</td>
           <td>{{ m.descripcion || '-' }}</td>
-          <td *ngIf="isAdmin">Usuario #{{ m.usuarioId }}</td>
+          <td *ngIf="isAdmin">{{ getNombreUsuario(m.usuarioId) }}</td>
           <td class="actions">
             <button 
               *ngIf="canEdit(m)"

@@ -38,12 +38,6 @@ export class CategoriesService {
     return this.http.put<Categoria>(`${this.apiUrl}/${id}`, categoria);
   }
 
-  /**
-   * Verifica si una categoría tiene transacciones asociadas
-   * @param categoryId ID de la categoría
-   * @param categoryName Nombre de la categoría
-   * @returns Observable con objeto { hasTransactions: boolean, count: number }
-   */
   checkTransactionsForCategory(categoryId: number, categoryName: string): Observable<{ hasTransactions: boolean; count: number }> {
     // Buscar por nombre de categoría (ya que las transacciones usan el nombre)
     return this.http.get<any[]>(`${this.transactionsUrl}?categoria=${encodeURIComponent(categoryName)}`).pipe(
@@ -54,21 +48,12 @@ export class CategoriesService {
     );
   }
 
-  /**
-   * Inactiva una categoría en lugar de eliminarla
-   * @param id ID de la categoría
-   * @returns Observable<Categoria>
-   */
+
   inactivate(id: number): Observable<Categoria> {
     return this.http.patch<Categoria>(`${this.apiUrl}/${id}`, { estado: false });
   }
 
-  /**
-   * Elimina o inactiva una categoría según tenga transacciones asociadas
-   * @param id ID de la categoría
-   * @param categoryName Nombre de la categoría
-   * @returns Observable con el resultado
-   */
+
   deleteOrInactivate(id: number, categoryName: string): Observable<{ deleted: boolean; inactivated: boolean; message: string }> {
     return new Observable(observer => {
       this.checkTransactionsForCategory(id, categoryName).subscribe({

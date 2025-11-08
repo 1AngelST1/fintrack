@@ -26,7 +26,7 @@ export class RegisterComponent {
         {
           validators: [Validators.required, Validators.email],
           asyncValidators: [this.emailExistsValidator()],
-          updateOn: 'blur' // Valida al perder el foco, no en cada tecla
+          updateOn: 'blur'
         }
       ],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -79,7 +79,7 @@ export class RegisterComponent {
     this.auth.register(this.form.value).subscribe({
       next: () => {
         this.successMsg = 'Cuenta creada correctamente';
-        this.form.reset(); // Limpiar el formulario
+        this.form.reset(); 
         setTimeout(() => this.router.navigate(['/auth/login']), 1500);
       },
       error: (err) => {

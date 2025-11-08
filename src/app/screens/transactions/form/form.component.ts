@@ -18,6 +18,7 @@ export class FormComponent implements OnInit {
   categorias: Categoria[] = [];
   isEditMode: boolean = false;
   transaccionId: number | null = null;
+  originalUsuarioId: number | undefined; // Guardar el usuarioId original
   loading: boolean = false;
   errorMsg: string = '';
   successMsg: string = '';
@@ -44,9 +45,7 @@ export class FormComponent implements OnInit {
     this.checkEditMode();
   }
 
-  /**
-   * Cargar categorías activas
-   */
+  // Cargar categorías activas
   loadCategorias() {
     this.catSvc.getAll().subscribe({
       next: (cats) => {
@@ -59,9 +58,7 @@ export class FormComponent implements OnInit {
     });
   }
 
-  /**
-   * Verificar si estamos en modo edición
-   */
+  // Verificar si estamos en modo edición
   checkEditMode() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -71,9 +68,7 @@ export class FormComponent implements OnInit {
     }
   }
 
-  /**
-   * Cargar datos de la transacción para editar
-   */
+  // Cargar datos de la transacción para editar
   loadTransaccion(id: number) {
     this.loading = true;
     this.txSvc.getById(id).subscribe({
@@ -88,6 +83,9 @@ export class FormComponent implements OnInit {
           this.router.navigate(['/transactions']);
           return;
         }
+
+        // Guardar el usuarioId original para mantenerlo en la actualización
+        this.originalUsuarioId = transaccion.usuarioId;
 
         this.form.patchValue({
           tipo: transaccion.tipo,
@@ -106,9 +104,7 @@ export class FormComponent implements OnInit {
     });
   }
 
-  /**
-   * Validador personalizado: fecha no puede ser futura
-   */
+  // Validador personalizado: fecha no puede ser futura
   fechaNoFuturaValidator(control: AbstractControl) {
     if (!control.value) return null;
     
@@ -122,17 +118,13 @@ export class FormComponent implements OnInit {
     return input.getTime() <= today.getTime() ? null : { fechaFutura: true };
   }
 
-  /**
-   * Filtrar categorías según el tipo seleccionado
-   */
+  // Filtrar categorías según el tipo seleccionado
   get categoriasFiltradas(): Categoria[] {
     const tipoSeleccionado = this.form.get('tipo')?.value;
     return this.categorias.filter(c => c.tipo === tipoSeleccionado);
   }
 
-  /**
-   * Al cambiar el tipo, limpiar la categoría si no es válida
-   */
+  // Al cambiar el tipo, limpiar la categoría si no es válida
   onTipoChange() {
     const categoriaActual = this.form.get('categoria')?.value;
     const categoriaValida = this.categoriasFiltradas.find(c => c.nombre === categoriaActual);
@@ -142,9 +134,7 @@ export class FormComponent implements OnInit {
     }
   }
 
-  /**
-   * Enviar formulario
-   */
+  // Enviar formulario
   onSubmit() {
     this.errorMsg = '';
     this.successMsg = '';
@@ -159,8 +149,13 @@ export class FormComponent implements OnInit {
     const formData = this.form.value;
 
     if (this.isEditMode && this.transaccionId) {
-      // Actualizar
-      this.txSvc.update(this.transaccionId, formData).subscribe({
+      // Actualizar - asegurarnos de mantener el usuarioId original
+      const updateData = {
+        ...formData,
+        usuarioId: this.originalUsuarioId // Mantener el usuario original
+      };
+      
+      this.txSvc.update(this.transaccionId, updateData).subscribe({
         next: () => {
           this.successMsg = 'Transacción actualizada correctamente';
           setTimeout(() => {
@@ -191,9 +186,7 @@ export class FormComponent implements OnInit {
     }
   }
 
-  /**
-   * Cancelar y volver a la lista
-   */
+  // Cancelar y volver a la lista
   onCancel() {
     this.router.navigate(['/transactions']);
   }

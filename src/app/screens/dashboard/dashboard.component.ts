@@ -103,9 +103,6 @@ export class DashboardComponent implements OnInit {
     this.loadTransaccionesRecientes();
   }
 
-  /**
-   * Establecer el nombre del mes actual
-   */
   setMesActual() {
     const hoy = new Date();
     const meses = [
@@ -115,9 +112,8 @@ export class DashboardComponent implements OnInit {
     this.mesActual = `${meses[hoy.getMonth()]} ${hoy.getFullYear()}`;
   }
 
-  /**
-   * Cargar balance del mes actual
-   */
+  //Cargar balance del mes actual
+
   loadBalanceMensual() {
     this.loading = true;
 
@@ -160,9 +156,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  /**
-   * Cargar últimas 5 transacciones
-   */
   loadTransaccionesRecientes() {
     const filters: any = { limit: 5 };
 
@@ -181,16 +174,11 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  /**
-   * Obtener clase CSS según el tipo
-   */
+ 
   getTipoClass(tipo: string): string {
     return tipo === 'Ingreso' ? 'ingreso' : 'gasto';
   }
 
-  /**
-   * Obtener mensaje de balance
-   */
   getBalanceMessage(): string {
     if (this.balance > 0) {
       return '¡Excelente! Tienes un superávit';
@@ -201,9 +189,6 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  /**
-   * Obtener icono de balance
-   */
   getBalanceIcon(): string {
     if (this.balance > 0) return '📈';
     if (this.balance < 0) return '📉';

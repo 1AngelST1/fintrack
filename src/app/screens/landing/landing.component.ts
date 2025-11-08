@@ -10,7 +10,7 @@ import { ChartConfiguration } from 'chart.js';
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss'
 })
-export class LandingComponent implements OnInit {
+export class LandingComponent  {
   // Características destacadas
   features = [
     {
@@ -124,7 +124,5 @@ export class LandingComponent implements OnInit {
     }
   };
 
-  ngOnInit() {
-    // Animaciones o inicializaciones adicionales
-  }
+
 }

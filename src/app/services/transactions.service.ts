@@ -17,17 +17,6 @@ export class TransactionsService {
     private auth: AuthService
   ) { }
 
-  /**
-   * Obtener todas las transacciones con filtros opcionales
-   * Filtros disponibles:
-   * - usuarioId: ID del usuario (automático si no es admin)
-   * - tipo: 'Ingreso' | 'Gasto'
-   * - categoria: nombre de la categoría
-   * - fechaDesde: fecha inicio (formato: yyyy-mm-dd)
-   * - fechaHasta: fecha fin (formato: yyyy-mm-dd)
-   * - page: número de página (paginación)
-   * - limit: cantidad de resultados por página
-   */
   getAll(filters: {
     usuarioId?: number;
     tipo?: string;
@@ -90,17 +79,10 @@ export class TransactionsService {
     return this.getAll({ tipo });
   }
 
-  /**
-   * Obtener transacciones por categoría
-   */
   getByCategoria(categoria: string): Observable<Movimiento[]> {
     return this.getAll({ categoria });
   }
 
-  /**
-   * Crear nueva transacción
-   * Automáticamente asigna el usuarioId del usuario actual si no viene
-   */
   create(movimiento: Partial<Movimiento>): Observable<Movimiento> {
     // Asignar usuarioId actual si no viene
     const user = this.auth.getCurrentUser();
@@ -113,9 +95,10 @@ export class TransactionsService {
 
   /**
    * Actualizar transacción existente
+   * Usa PATCH para actualización parcial (mantiene campos no enviados)
    */
   update(id: number, movimiento: Partial<Movimiento>): Observable<Movimiento> {
-    return this.http.put<Movimiento>(`${this.apiUrl}/${id}`, movimiento);
+    return this.http.patch<Movimiento>(`${this.apiUrl}/${id}`, movimiento);
   }
 
   /**
@@ -125,10 +108,6 @@ export class TransactionsService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  /**
-   * Helper: Obtener transacciones filtradas y calcular balance
-   * Retorna: ingresos totales, gastos totales, balance y lista de transacciones
-   */
   getFilteredAndSum(filters = {}) {
     return this.getAll(filters).pipe(
       map(list => {
@@ -152,9 +131,7 @@ export class TransactionsService {
     );
   }
 
-  /**
-   * Helper: Obtener balance mensual del usuario actual
-   */
+
   getBalanceMensual(mes?: number, anio?: number): Observable<{
     ingresos: number;
     gastos: number;
@@ -186,9 +163,7 @@ export class TransactionsService {
     );
   }
 
-  /**
-   * Helper: Obtener distribución de gastos por categoría
-   */
+
   getGastosPorCategoria(filters = {}): Observable<{ categoria: string; total: number }[]> {
     return this.getAll({ ...filters, tipo: 'Gasto' }).pipe(
       map(list => {
