@@ -180,7 +180,10 @@ export class FormComponent implements OnInit {
 
   checkDuplicateAndSave() {
     // Usar el usuarioId del presupuesto (que puede ser seleccionado por admin)
-    const targetUserId = this.presupuesto.usuarioId;
+    // Convertir a número si es string
+    const targetUserId = typeof this.presupuesto.usuarioId === 'string' 
+      ? parseInt(this.presupuesto.usuarioId, 10) 
+      : this.presupuesto.usuarioId;
     
     if (!targetUserId || targetUserId === 0) {
       alert('⚠️ Debe seleccionar un usuario');
@@ -188,8 +191,13 @@ export class FormComponent implements OnInit {
       return;
     }
 
+    // Convertir categoriaId a número también
+    const categoriaId = typeof this.presupuesto.categoriaId === 'string'
+      ? parseInt(this.presupuesto.categoriaId, 10)
+      : this.presupuesto.categoriaId;
+
     // Buscar presupuestos existentes para esta categoría y usuario
-    this.budgetSvc.getByCategoryAndUser(this.presupuesto.categoriaId, targetUserId)
+    this.budgetSvc.getByCategoryAndUser(categoriaId, targetUserId)
       .subscribe({
         next: (existingBudgets) => {
           // Si es modo edición, excluir el presupuesto actual
@@ -227,12 +235,18 @@ export class FormComponent implements OnInit {
   saveBudget() {
     this.loading = true;
 
-    // Asegurar que categoriaId sea número
+    // Asegurar que categoriaId y usuarioId sean números
     const presupuestoToSave = {
       ...this.presupuesto,
+      usuarioId: typeof this.presupuesto.usuarioId === 'string' 
+        ? parseInt(this.presupuesto.usuarioId, 10) 
+        : this.presupuesto.usuarioId,
       categoriaId: typeof this.presupuesto.categoriaId === 'string' 
-        ? parseInt(this.presupuesto.categoriaId) 
-        : this.presupuesto.categoriaId
+        ? parseInt(this.presupuesto.categoriaId, 10) 
+        : this.presupuesto.categoriaId,
+      monto: typeof this.presupuesto.monto === 'string'
+        ? parseFloat(this.presupuesto.monto)
+        : this.presupuesto.monto
     };
 
     if (this.isEditMode && this.presupuesto.id) {

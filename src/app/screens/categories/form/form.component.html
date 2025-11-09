@@ -25,6 +25,33 @@
     </div>
   } @else {
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-card">
+      <!-- Selector de Usuario (solo para Admin) -->
+      @if (isAdmin) {
+        <div class="form-group full-width">
+          <label for="usuarioId">
+            <span class="label-icon">👤</span>
+            Usuario
+          </label>
+          <select 
+            id="usuarioId"
+            formControlName="usuarioId"
+            class="form-control"
+          >
+            <option value="" disabled>Seleccionar usuario</option>
+            @for (usuario of usuarios; track usuario.id) {
+              <option [value]="usuario.id">
+                {{ usuario.nombre }} {{ usuario.apellidos }} ({{ usuario.correo }})
+              </option>
+            }
+          </select>
+          @if (f['usuarioId'].touched && f['usuarioId'].invalid) {
+            <div class="error-message">
+              <small>Debe seleccionar un usuario</small>
+            </div>
+          }
+        </div>
+      }
+
       <!-- Nombre -->
       <div class="form-group">
         <label for="nombre">
@@ -142,3 +169,10 @@
     </form>
   }
 </section>
+
+<!-- Modal de categoría duplicada -->
+<app-duplicate-category-modal
+  [isOpen]="isDuplicateModalOpen"
+  [categoryName]="duplicateCategoryName"
+  (close)="closeDuplicateModal()">
+</app-duplicate-category-modal>

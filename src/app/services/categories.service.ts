@@ -26,6 +26,18 @@ export class CategoriesService {
     return this.http.get<Categoria[]>(`${this.apiUrl}?usuarioId=${usuarioId}`);
   }
 
+  checkDuplicateByName(nombre: string, usuarioId: number, excludeId?: number): Observable<boolean> {
+    return this.http.get<Categoria[]>(`${this.apiUrl}?nombre=${encodeURIComponent(nombre)}&usuarioId=${usuarioId}`).pipe(
+      map(categories => {
+        // Si hay un ID a excluir (modo edición), filtrarlo
+        const duplicates = excludeId 
+          ? categories.filter(c => c.id !== excludeId)
+          : categories;
+        return duplicates.length > 0;
+      })
+    );
+  }
+
   getByTipo(tipo: 'ingreso' | 'gasto'): Observable<Categoria[]> {
     return this.http.get<Categoria[]>(`${this.apiUrl}?tipo=${tipo}`);
   }

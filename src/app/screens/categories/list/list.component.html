@@ -36,6 +36,9 @@
             <th>Tipo</th>
             <th>Color</th>
             <th>Estado</th>
+            @if (isAdmin) {
+              <th>Usuario</th>
+            }
             <th>Acciones</th>
           </tr>
         </thead>
@@ -60,6 +63,13 @@
                   {{ categoria.estado ? 'Activo' : 'Inactivo' }}
                 </span>
               </td>
+              @if (isAdmin) {
+                <td>
+                  <span class="user-badge">
+                    👤 {{ getNombreUsuario(categoria.usuarioId) }}
+                  </span>
+                </td>
+              }
               <td class="actions">
                 <button class="btn btn-edit" 
                         [routerLink]="['/categories/form', categoria.id]"
@@ -71,6 +81,12 @@
                           (click)="onDeleteClick(categoria)"
                           title="Eliminar">
                     🗑️
+                  </button>
+                } @else {
+                  <button class="btn btn-activate" 
+                          (click)="onActivateClick(categoria)"
+                          title="Activar">
+                    ✅
                   </button>
                 }
               </td>

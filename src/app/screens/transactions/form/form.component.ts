@@ -212,7 +212,8 @@ export class FormComponent implements OnInit {
   checkBudgetAndSave(formData: any) {
     // Obtener el usuario para verificar presupuesto:
     // - Usar el usuarioId del formulario (que puede ser seleccionado por admin o el usuario actual)
-    const targetUserId = formData.usuarioId;
+    // - Convertir a número si es string
+    const targetUserId = typeof formData.usuarioId === 'string' ? parseInt(formData.usuarioId, 10) : formData.usuarioId;
 
     if (!targetUserId) {
       console.log('❌ No hay usuario seleccionado');
@@ -340,9 +341,16 @@ export class FormComponent implements OnInit {
   saveTransaction(formData: any) {
     this.loading = true;
 
+    // Convertir usuarioId a número si es string
+    const transactionData = {
+      ...formData,
+      usuarioId: typeof formData.usuarioId === 'string' ? parseInt(formData.usuarioId, 10) : formData.usuarioId,
+      monto: typeof formData.monto === 'string' ? parseFloat(formData.monto) : formData.monto
+    };
+
     if (this.isEditMode && this.transaccionId) {
-      // Actualizar - el usuarioId ya viene en formData
-      this.txSvc.update(this.transaccionId, formData).subscribe({
+      // Actualizar
+      this.txSvc.update(this.transaccionId, transactionData).subscribe({
         next: () => {
           this.successMsg = 'Transacción actualizada correctamente';
           setTimeout(() => {
@@ -356,8 +364,8 @@ export class FormComponent implements OnInit {
         }
       });
     } else {
-      // Crear - el usuarioId ya viene en formData
-      this.txSvc.create(formData).subscribe({
+      // Crear
+      this.txSvc.create(transactionData).subscribe({
         next: () => {
           this.successMsg = 'Transacción creada correctamente';
           setTimeout(() => {

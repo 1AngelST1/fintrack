@@ -53,23 +53,17 @@ export const routes: Routes = [
         loadComponent: () => import('./screens/transactions/form/form.component').then(m => m.FormComponent)
       },
 
-      // Categories (solo admin)
+      // Categories (accesible para todos los usuarios autenticados)
       {
         path: 'categories',
-        canActivate: [RoleGuard],
-        data: { roles: ['admin'] },
         loadComponent: () => import('./screens/categories/list/list.component').then(m => m.ListComponent)
       },
       {
         path: 'categories/form',
-        canActivate: [RoleGuard],
-        data: { roles: ['admin'] },
         loadComponent: () => import('./screens/categories/form/form.component').then(m => m.FormComponent)
       },
       {
         path: 'categories/form/:id',
-        canActivate: [RoleGuard],
-        data: { roles: ['admin'] },
         loadComponent: () => import('./screens/categories/form/form.component').then(m => m.FormComponent)
       },
 

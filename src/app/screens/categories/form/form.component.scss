@@ -50,6 +50,10 @@
     .form-group {
       margin-bottom: 1.5rem;
 
+      &.full-width {
+        grid-column: 1 / -1;
+      }
+
       label {
         display: block;
         color: #b0b0b0;

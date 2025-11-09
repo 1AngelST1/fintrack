@@ -4,10 +4,13 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CategoriesService } from '../../../services/categories.service';
 import { AuthService } from '../../../services/auth.service';
+import { UsersService } from '../../../services/users.service';
+import { Usuario } from '../../../shared/interfaces/usuario';
+import { DuplicateCategoryModalComponent } from '../../../modals/duplicate-category-modal/duplicate-category-modal.component';
 
 @Component({
   selector: 'app-form',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, DuplicateCategoryModalComponent],
   templateUrl: './form.component.html',
   styleUrl: './form.component.scss'
 })
@@ -18,6 +21,12 @@ export class FormComponent implements OnInit {
   loading: boolean = false;
   errorMessage: string = '';
   successMessage: string = '';
+  isAdmin: boolean = false;
+  usuarios: Usuario[] = [];
+
+  // Modal de categoría duplicada
+  isDuplicateModalOpen: boolean = false;
+  duplicateCategoryName: string = '';
 
   // Colores predefinidos
   availableColors: string[] = [
@@ -37,10 +46,16 @@ export class FormComponent implements OnInit {
     private fb: FormBuilder,
     private categoriesService: CategoriesService,
     private authService: AuthService,
+    private usersService: UsersService,
     private router: Router,
     private route: ActivatedRoute
   ) {
+    // Obtener usuario actual
+    const currentUser = this.authService.getCurrentUser();
+    this.isAdmin = currentUser?.rol === 'admin';
+
     this.form = this.fb.group({
+      usuarioId: [currentUser?.id || 0, Validators.required],
       nombre: ['', [Validators.required, Validators.minLength(3)]],
       tipo: ['Gasto', Validators.required],
       color: ['#4f8ef7', Validators.required],
@@ -49,6 +64,11 @@ export class FormComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Cargar usuarios si es admin
+    if (this.isAdmin) {
+      this.loadUsuarios();
+    }
+
     // Verificar si es modo edición
     this.route.params.subscribe(params => {
       if (params['id']) {
@@ -59,16 +79,34 @@ export class FormComponent implements OnInit {
     });
   }
 
+  loadUsuarios() {
+    this.usersService.getAll().subscribe({
+      next: (users) => {
+        this.usuarios = users;
+      },
+      error: (err) => {
+        console.error('Error al cargar usuarios:', err);
+      }
+    });
+  }
+
   loadCategory(id: number) {
     this.loading = true;
     this.categoriesService.getById(id).subscribe({
       next: (categoria) => {
         this.form.patchValue({
+          usuarioId: categoria.usuarioId,
           nombre: categoria.nombre,
           tipo: categoria.tipo,
           color: categoria.color,
           estado: categoria.estado
         });
+        
+        // Deshabilitar selector de usuario en modo edición
+        if (this.isEditMode) {
+          this.form.get('usuarioId')?.disable();
+        }
+        
         this.loading = false;
       },
       error: (err) => {
@@ -89,12 +127,49 @@ export class FormComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    const categoriaData = {
-      nombre: this.form.value.nombre,
-      tipo: this.form.value.tipo,
-      color: this.form.value.color,
-      estado: this.form.value.estado ?? true
-    };
+    // Obtener usuarioId y convertir a número
+    const usuarioIdValue = this.form.get('usuarioId')?.value || this.form.value.usuarioId;
+    const usuarioId = typeof usuarioIdValue === 'string' ? parseInt(usuarioIdValue, 10) : usuarioIdValue;
+    const nombre = this.form.value.nombre;
+
+    // Verificar si existe una categoría con el mismo nombre para este usuario
+    this.categoriesService.checkDuplicateByName(nombre, usuarioId, this.categoryId || undefined).subscribe({
+      next: (isDuplicate) => {
+        if (isDuplicate) {
+          // Mostrar modal de duplicado
+          this.loading = false;
+          this.duplicateCategoryName = nombre;
+          this.isDuplicateModalOpen = true;
+          return;
+        }
+
+        // No es duplicado, proceder a guardar
+        const categoriaData = {
+          usuarioId: usuarioId,
+          nombre: nombre,
+          tipo: this.form.value.tipo,
+          color: this.form.value.color,
+          estado: this.form.value.estado ?? true
+        };
+
+        this.saveCategory(categoriaData);
+      },
+      error: (err) => {
+        console.error('Error al verificar duplicados:', err);
+        // En caso de error, continuar con el guardado
+        const categoriaData = {
+          usuarioId: usuarioId,
+          nombre: nombre,
+          tipo: this.form.value.tipo,
+          color: this.form.value.color,
+          estado: this.form.value.estado ?? true
+        };
+        this.saveCategory(categoriaData);
+      }
+    });
+  }
+
+  saveCategory(categoriaData: any) {
 
     if (this.isEditMode && this.categoryId) {
       // Actualizar categoría existente
@@ -131,6 +206,10 @@ export class FormComponent implements OnInit {
 
   onCancel() {
     this.router.navigate(['/categories']);
+  }
+
+  closeDuplicateModal() {
+    this.isDuplicateModalOpen = false;
   }
 
   get f() { return this.form.controls; }
