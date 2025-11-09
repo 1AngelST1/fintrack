@@ -35,7 +35,7 @@ export class RegisterComponent {
     }, { validators: this.passwordMatch });
   }
 
-  /** Validador asíncrono para verificar si el correo ya existe */
+  // Validador asíncrono para verificar si el correo ya existe
   emailExistsValidator(): AsyncValidatorFn {
     return (control: AbstractControl): Observable<ValidationErrors | null> => {
       if (!control.value) {

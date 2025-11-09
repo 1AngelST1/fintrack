@@ -122,3 +122,13 @@
     </div>
   </form>
 </section>
+
+<!-- Modal de advertencia de presupuesto excedido -->
+<app-budget-warning-modal
+  [isOpen]="isBudgetWarningOpen"
+  [categoryName]="budgetData.categoryName"
+  [budgetLimit]="budgetData.budgetLimit"
+  [currentSpent]="budgetData.currentSpent"
+  [newAmount]="budgetData.newAmount"
+  (cancel)="onCancelBudgetWarning()">
+</app-budget-warning-modal>

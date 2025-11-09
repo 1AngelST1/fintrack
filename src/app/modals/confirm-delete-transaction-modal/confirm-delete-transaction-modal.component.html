@@ -1,1 +1,51 @@
-<p>confirm-delete-transaction-modal works!</p>
+@if (isOpen) {
+  <div class="modal-backdrop" (click)="onBackdropClick($event)">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>🗑️ Confirmar Eliminación</h2>
+        <button class="close-btn" (click)="onCancel()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="warning-icon">⚠️</div>
+        <p class="warning-message">
+          ¿Estás seguro de que deseas eliminar esta transacción?
+        </p>
+
+        <div class="transaction-details">
+          <div class="detail-row">
+            <span class="label">Tipo:</span>
+            <span class="value" [class.ingreso]="transactionType === 'Ingreso'" 
+                  [class.gasto]="transactionType === 'Gasto'">
+              {{ transactionType === 'Ingreso' ? '📈' : '📉' }} {{ transactionType }}
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Categoría:</span>
+            <span class="value">{{ transactionCategory }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Monto:</span>
+            <span class="value amount" [class.ingreso]="transactionType === 'Ingreso'" 
+                  [class.gasto]="transactionType === 'Gasto'">
+              {{ transactionType === 'Ingreso' ? '+' : '-' }}${{ transactionAmount | number:'1.2-2' }}
+            </span>
+          </div>
+        </div>
+
+        <p class="caution-text">
+          ⚠️ Esta acción no se puede deshacer
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-cancel" (click)="onCancel()">
+          ❌ Cancelar
+        </button>
+        <button class="btn btn-delete" (click)="onConfirm()">
+          🗑️ Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+}

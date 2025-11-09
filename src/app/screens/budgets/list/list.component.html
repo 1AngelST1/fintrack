@@ -1,0 +1,90 @@
+<div class="budgets-container">
+  <div class="header">
+    <h1>Presupuestos</h1>
+    <a routerLink="/budgets/form" class="btn btn-primary">
+      <span class="icon">+</span>
+      Nuevo Presupuesto
+    </a>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Cargando presupuestos...</p>
+  </div>
+
+  <div *ngIf="!loading && presupuestosConProgreso.length === 0" class="empty-state">
+    <div class="empty-icon">📊</div>
+    <h3>No hay presupuestos</h3>
+    <p>Comienza creando un presupuesto para controlar tus gastos</p>
+    <a routerLink="/budgets/form" class="btn btn-primary">Crear Presupuesto</a>
+  </div>
+
+  <div *ngIf="!loading && presupuestosConProgreso.length > 0" class="budgets-grid">
+    <div *ngFor="let presupuesto of presupuestosConProgreso" 
+         class="budget-card"
+         [class.excedido]="presupuesto.excedido">
+      
+      <div class="card-header">
+        <div class="categoria-info">
+          <h3>{{ presupuesto.categoria }}</h3>
+          <div class="metadata">
+            <span class="periodo">{{ presupuesto.periodo }}</span>
+            <span *ngIf="isAdmin" class="usuario-badge">
+              👤 {{ getNombreUsuario(presupuesto.usuarioId) }}
+            </span>
+          </div>
+        </div>
+        <div class="acciones">
+          <a *ngIf="canEdit(presupuesto)" 
+             [routerLink]="['/budgets/form', presupuesto.id]" 
+             class="btn-icon btn-edit"
+             title="Editar">
+            ✏️
+          </a>
+          <button *ngIf="canEdit(presupuesto)"
+                  (click)="onDelete(presupuesto.id)" 
+                  class="btn-icon btn-delete"
+                  title="Eliminar">
+            🗑️
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="montos">
+          <div class="monto-item">
+            <span class="label">Presupuesto:</span>
+            <span class="valor presupuestado">${{ presupuesto.monto | number:'1.2-2' }}</span>
+          </div>
+          <div class="monto-item">
+            <span class="label">Gastado:</span>
+            <span class="valor gastado">${{ presupuesto.totalGastado | number:'1.2-2' }}</span>
+          </div>
+          <div class="monto-item">
+            <span class="label">Disponible:</span>
+            <span class="valor disponible" 
+                  [class.negativo]="presupuesto.disponible < 0">
+              ${{ presupuesto.disponible | number:'1.2-2' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="progreso-container">
+          <div class="progreso-header">
+            <span class="porcentaje-texto">{{ presupuesto.porcentaje | number:'1.0-0' }}%</span>
+            <span class="estado-badge" [ngClass]="getEstadoClass(presupuesto.estado)">
+              {{ presupuesto.estado === 'ok' ? '✓ Bien' : 
+                 presupuesto.estado === 'warning' ? '⚠ Atención' : '⛔ Excedido' }}
+            </span>
+          </div>
+          <div class="barra-progreso">
+            <div class="barra-relleno" 
+                 [ngClass]="getEstadoClass(presupuesto.estado)"
+                 [style.width.%]="presupuesto.porcentaje">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

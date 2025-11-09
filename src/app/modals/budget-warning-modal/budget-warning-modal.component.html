@@ -1,1 +1,72 @@
-<p>budget-warning-modal works!</p>
+@if (isOpen) {
+  <div class="modal-backdrop" (click)="onBackdropClick($event)">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="icon-warning">🚫</div>
+        <h2>NO PERMITIDO - Excedes el presupuesto</h2>
+        <p class="subtitle">No puedes registrar este gasto porque excede tu límite</p>
+      </div>
+
+      <div class="modal-body">
+        <div class="budget-details">
+          <div class="detail-row">
+            <span class="label">📊 Presupuesto límite:</span>
+            <span class="value limit">${{ budgetLimit | number:'1.2-2' }}</span>
+          </div>
+          
+          <div class="detail-row">
+            <span class="label">💸 Ya gastado en {{ categoryName }}:</span>
+            <span class="value spent">${{ currentSpent | number:'1.2-2' }}</span>
+          </div>
+          
+          <div class="detail-row highlight">
+            <span class="label">➕ Intentas agregar:</span>
+            <span class="value new">${{ newAmount | number:'1.2-2' }}</span>
+          </div>
+          
+          <div class="divider"></div>
+          
+          <div class="detail-row total">
+            <span class="label">❌ Total sería:</span>
+            <span class="value exceed">${{ totalAfterTransaction | number:'1.2-2' }}</span>
+          </div>
+        </div>
+
+        <div class="alert-box">
+          <div class="alert-item danger">
+            <span class="icon">⚠️</span>
+            <div>
+              <strong>Te excederías por:</strong>
+              <span class="amount">${{ exceedsBy | number:'1.2-2' }}</span>
+            </div>
+          </div>
+          
+          <div class="alert-item success">
+            <span class="icon">💰</span>
+            <div>
+              <strong>Máximo que puedes gastar:</strong>
+              <span class="amount">${{ (budgetLimit - currentSpent) | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="options-box">
+          <div class="options-header">
+            <span class="icon">💡</span>
+            <strong>Opciones:</strong>
+          </div>
+          <ul>
+            <li>Reduce el monto a máximo <strong>${{ (budgetLimit - currentSpent) | number:'1.2-2' }}</strong></li>
+            <li>Aumenta tu presupuesto en <strong>Presupuestos</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="onCancel()">
+          ← Volver a Editar
+        </button>
+      </div>
+    </div>
+  </div>
+}

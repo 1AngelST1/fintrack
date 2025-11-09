@@ -1,0 +1,58 @@
+@if (isOpen) {
+  <div class="modal-backdrop" (click)="onBackdropClick($event)">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="icon-warning">⚠️</div>
+        <h2>YA EXISTE UN PRESUPUESTO</h2>
+        <p class="subtitle">No puedes crear presupuestos duplicados para la misma categoría</p>
+      </div>
+
+      <div class="modal-body">
+        <div class="category-info">
+          <h3>{{ categoryName }}</h3>
+          <p>Ya tienes un presupuesto configurado para esta categoría</p>
+        </div>
+
+        <div class="existing-budget">
+          <div class="budget-row">
+            <span class="label">📊 Presupuesto actual:</span>
+            <span class="value">${{ existingAmount | number:'1.2-2' }}</span>
+          </div>
+          <div class="budget-row">
+            <span class="label">📅 Periodo:</span>
+            <span class="value">{{ existingPeriod | titlecase }}</span>
+          </div>
+        </div>
+
+        <div class="options-box">
+          <div class="options-header">
+            <span class="icon">💡</span>
+            <strong>¿Qué puedes hacer?</strong>
+          </div>
+          <ul>
+            <li>
+              <strong>Editar el presupuesto existente</strong> en lugar de crear uno nuevo
+            </li>
+            <li>
+              <strong>Eliminar el presupuesto anterior</strong> si deseas reemplazarlo
+            </li>
+            <li>
+              <strong>Seleccionar una categoría diferente</strong> para este nuevo presupuesto
+            </li>
+          </ul>
+        </div>
+
+        <div class="info-note">
+          <span class="icon">ℹ️</span>
+          <p>Solo puedes tener un presupuesto por categoría. Esto te ayuda a mantener un mejor control de tus gastos.</p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-primary" (click)="onClose()">
+          ✓ Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,124 @@
+<div class="form-container">
+  <div class="form-card">
+    <div class="form-header">
+      <h1>{{ isEditMode ? 'Editar Presupuesto' : 'Nuevo Presupuesto' }}</h1>
+      <p class="subtitle">
+        {{ isEditMode ? 'Actualiza los datos del presupuesto' : 'Crea un nuevo presupuesto para controlar tus gastos' }}
+      </p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #budgetForm="ngForm">
+      <div class="form-body">
+        
+        <div class="form-group">
+          <label for="categoria">
+            <span class="label-text">Categoría (Solo Gastos)</span>
+            <span class="required">*</span>
+          </label>
+          <select 
+            id="categoria"
+            name="categoriaId"
+            [ngModel]="presupuesto.categoriaId"
+            (ngModelChange)="onCategoriaChange($event)"
+            required
+            class="form-control"
+            [disabled]="loading">
+            <option [ngValue]="0">Selecciona una categoría</option>
+            <option *ngFor="let cat of categorias" [ngValue]="cat.id">
+              {{ cat.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="monto">
+            <span class="label-text">Monto Límite</span>
+            <span class="required">*</span>
+          </label>
+          <div class="input-with-icon">
+            <span class="icon">$</span>
+            <input 
+              type="number"
+              id="monto"
+              name="monto"
+              [(ngModel)]="presupuesto.monto"
+              required
+              min="0.01"
+              step="0.01"
+              placeholder="0.00"
+              class="form-control"
+              [disabled]="loading">
+          </div>
+          <small class="help-text">
+            Monto máximo que puedes gastar en esta categoría
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="periodo">
+            <span class="label-text">Periodo</span>
+            <span class="required">*</span>
+          </label>
+          <div class="periodo-options">
+            <label *ngFor="let p of periodos" class="radio-card">
+              <input 
+                type="radio"
+                name="periodo"
+                [value]="p"
+                [(ngModel)]="presupuesto.periodo"
+                required
+                [disabled]="loading">
+              <span class="radio-label">
+                <span class="radio-icon">
+                  {{ p === 'mensual' ? '📅' : '📆' }}
+                </span>
+                <span class="radio-text">{{ p | titlecase }}</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-icon">💡</div>
+          <div class="info-content">
+            <h4>¿Cómo funcionan los presupuestos?</h4>
+            <ul>
+              <li>Se rastrearán todos tus <strong>gastos</strong> en la categoría seleccionada</li>
+              <li>Recibirás alertas cuando te acerques al límite establecido</li>
+              <li>El periodo se reinicia automáticamente (mensual o anual)</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="form-footer">
+        <button 
+          type="button"
+          (click)="onCancel()"
+          class="btn btn-secondary"
+          [disabled]="loading">
+          Cancelar
+        </button>
+        <button 
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="!budgetForm.form.valid || loading">
+          <span *ngIf="loading" class="spinner-small"></span>
+          <span *ngIf="!loading">
+            {{ isEditMode ? 'Actualizar' : 'Crear' }} Presupuesto
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal de Presupuesto Duplicado -->
+<app-duplicate-budget-modal
+  [isOpen]="isDuplicateModalOpen"
+  [categoryName]="duplicateData.categoryName"
+  [existingAmount]="duplicateData.existingAmount"
+  [existingPeriod]="duplicateData.existingPeriod"
+  (close)="closeDuplicateModal()">
+</app-duplicate-budget-modal>

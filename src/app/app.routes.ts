@@ -6,7 +6,7 @@ import { PublicLayoutComponent } from './layouts/public-layout/public-layout.com
 import { PrivateLayoutComponent } from './layouts/private-layout/private-layout.component';
 
 export const routes: Routes = [
-  // =============== RUTAS PÚBLICAS ===============
+  // RUTAS PÚBLICAS 
   {
     path: '',
     component: PublicLayoutComponent,
@@ -27,7 +27,7 @@ export const routes: Routes = [
     ]
   },
 
-  // =============== RUTAS PRIVADAS (PROTEGIDAS) ===============
+  // RUTAS PRIVADAS (PROTEGIDAS) 
   {
     path: '',
     component: PrivateLayoutComponent,
@@ -73,6 +73,20 @@ export const routes: Routes = [
         loadComponent: () => import('./screens/categories/form/form.component').then(m => m.FormComponent)
       },
 
+      // Budgets
+      {
+        path: 'budgets',
+        loadComponent: () => import('./screens/budgets/list/list.component').then(m => m.ListComponent)
+      },
+      {
+        path: 'budgets/form',
+        loadComponent: () => import('./screens/budgets/form/form.component').then(m => m.FormComponent)
+      },
+      {
+        path: 'budgets/form/:id',
+        loadComponent: () => import('./screens/budgets/form/form.component').then(m => m.FormComponent)
+      },
+
       // Reports
       {
         path: 'reports',
@@ -87,6 +101,6 @@ export const routes: Routes = [
     ]
   },
 
-  // =============== FALLBACK ===============
+  //  FALLBACK 
   { path: '**', redirectTo: '' }
 ];

@@ -102,7 +102,7 @@
             <button 
               *ngIf="canEdit(m)"
               class="btn-delete" 
-              (click)="onDelete(m.id)"
+              (click)="onDeleteClick(m)"
               title="Eliminar"
             >
               🗑️
@@ -119,3 +119,13 @@
     <p>📊 Total de transacciones: <strong>{{ transacciones.length }}</strong></p>
   </div>
 </section>
+
+<!-- Modal de confirmación -->
+<app-confirm-delete-transaction-modal
+  [isOpen]="isModalOpen"
+  [transactionType]="selectedTransaction?.tipo || ''"
+  [transactionAmount]="selectedTransaction?.monto || 0"
+  [transactionCategory]="selectedTransaction?.categoria || ''"
+  (confirm)="onConfirmDelete()"
+  (cancel)="onCancelDelete()">
+</app-confirm-delete-transaction-modal>

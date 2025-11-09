@@ -5,11 +5,14 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { TransactionsService } from '../../../services/transactions.service';
 import { CategoriesService } from '../../../services/categories.service';
 import { AuthService } from '../../../services/auth.service';
+import { BudgetsService } from '../../../services/budgets.service';
 import { Categoria } from '../../../shared/interfaces/categoria';
+import { BudgetWarningModalComponent } from '../../../modals/budget-warning-modal/budget-warning-modal.component';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-form',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, BudgetWarningModalComponent],
   templateUrl: './form.component.html',
   styleUrls: ['./form.component.scss']
 })
@@ -18,16 +21,26 @@ export class FormComponent implements OnInit {
   categorias: Categoria[] = [];
   isEditMode: boolean = false;
   transaccionId: number | null = null;
-  originalUsuarioId: number | undefined; // Guardar el usuarioId original
+  originalUsuarioId: number | undefined;
   loading: boolean = false;
   errorMsg: string = '';
   successMsg: string = '';
+
+  // Modal de presupuesto
+  isBudgetWarningOpen: boolean = false;
+  budgetData = {
+    categoryName: '',
+    budgetLimit: 0,
+    currentSpent: 0,
+    newAmount: 0
+  };
 
   constructor(
     private fb: FormBuilder,
     private txSvc: TransactionsService,
     private catSvc: CategoriesService,
     private auth: AuthService,
+    private budgetSvc: BudgetsService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -145,8 +158,141 @@ export class FormComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
     const formData = this.form.value;
+
+    // Si es un gasto, verificar presupuesto (tanto al crear como al editar)
+    if (formData.tipo === 'Gasto') {
+      this.checkBudgetAndSave(formData);
+    } else {
+      this.saveTransaction(formData);
+    }
+  }
+
+  // Verificar presupuesto antes de guardar
+  checkBudgetAndSave(formData: any) {
+    const currentUser = this.auth.getCurrentUser();
+    if (!currentUser?.id) {
+      console.log('❌ No hay usuario logueado');
+      this.saveTransaction(formData);
+      return;
+    }
+
+    const categoria = this.categorias.find(c => c.nombre === formData.categoria);
+    if (!categoria?.id) {
+      console.log('❌ No se encontró la categoría:', formData.categoria);
+      this.saveTransaction(formData);
+      return;
+    }
+
+    console.log('🔍 Verificando presupuesto para:', {
+      categoria: categoria.nombre,
+      categoriaId: categoria.id,
+      usuarioId: currentUser.id
+    });
+
+    // Obtener presupuesto y gastos actuales de la categoría
+    forkJoin({
+      budgets: this.budgetSvc.getByCategoryAndUser(categoria.id, currentUser.id),
+      transactions: this.txSvc.getAll({
+        usuarioId: currentUser.id,
+        categoria: formData.categoria,
+        tipo: 'Gasto'
+      })
+    }).subscribe({
+      next: ({ budgets, transactions }) => {
+        console.log('📊 Resultados:', { 
+          budgets: budgets.length, 
+          transactions: transactions.length 
+        });
+
+        if (budgets.length === 0) {
+          // No hay presupuesto, guardar directamente sin alertas
+          console.log('✅ No hay presupuesto configurado, guardando...');
+          this.saveTransaction(formData);
+          return;
+        }
+
+        const budget = budgets[0];
+        
+        // Calcular gasto actual (excluyendo la transacción que estamos editando)
+        let currentSpent = transactions.reduce((sum, t) => {
+          // Si estamos editando, excluir el monto original de esta transacción
+          if (this.isEditMode && t.id === this.transaccionId) {
+            return sum;
+          }
+          return sum + t.monto;
+        }, 0);
+        
+        const newAmount = parseFloat(formData.monto);
+        const totalAfter = currentSpent + newAmount;
+        const percentageUsed = (totalAfter / budget.monto) * 100;
+        const remaining = budget.monto - totalAfter;
+
+        console.log('💰 Análisis de presupuesto:', {
+          limite: budget.monto,
+          gastadoActual: currentSpent,
+          nuevo: newAmount,
+          totalDespues: totalAfter,
+          porcentaje: percentageUsed,
+          restante: remaining,
+          excede: totalAfter > budget.monto,
+          esEdicion: this.isEditMode
+        });
+
+        if (totalAfter > budget.monto) {
+          // BLOQUEAR: Excede el presupuesto - Mostrar MODAL
+          console.log('🚫 ¡Presupuesto excedido! Mostrando modal.');
+          
+          this.budgetData = {
+            categoryName: formData.categoria,
+            budgetLimit: budget.monto,
+            currentSpent: currentSpent,
+            newAmount: newAmount
+          };
+          this.isBudgetWarningOpen = true;
+          this.loading = false;
+          return; // NO guardar
+        } else {
+          // No excede, pero mostrar alertas según el porcentaje
+          console.log('✅ Dentro del presupuesto, guardando...');
+          
+          if (percentageUsed >= 90) {
+            // Alerta crítica: 90% o más
+            alert(`⚠️ ¡ATENCIÓN! Con este gasto alcanzarás el ${percentageUsed.toFixed(1)}% de tu presupuesto.\n\n` +
+                  `📊 Presupuesto: $${budget.monto.toFixed(2)}\n` +
+                  `💸 Gastado: $${currentSpent.toFixed(2)}\n` +
+                  `➕ Nuevo gasto: $${newAmount.toFixed(2)}\n` +
+                  `💰 Te quedará disponible: $${remaining.toFixed(2)}`);
+          } else if (percentageUsed >= 70) {
+            // Advertencia: 70-89%
+            alert(`⚡ Advertencia: Con este gasto alcanzarás el ${percentageUsed.toFixed(1)}% de tu presupuesto.\n\n` +
+                  `Te quedarán $${remaining.toFixed(2)} disponibles de $${budget.monto.toFixed(2)}`);
+          } else {
+            // Información: menos del 70%
+            alert(`✅ Gasto registrado correctamente.\n\n` +
+                  `💰 Presupuesto disponible: $${remaining.toFixed(2)} de $${budget.monto.toFixed(2)}\n` +
+                  `📊 Has usado el ${percentageUsed.toFixed(1)}% de tu presupuesto`);
+          }
+          
+          this.saveTransaction(formData);
+        }
+      },
+      error: (err) => {
+        console.error('❌ Error al verificar presupuesto:', err);
+        // En caso de error, continuar con la transacción
+        this.saveTransaction(formData);
+      }
+    });
+  }
+
+  // Cancelar el modal de presupuesto excedido
+  onCancelBudgetWarning() {
+    this.isBudgetWarningOpen = false;
+  }
+
+  // Guardar transacción
+  saveTransaction(formData: any) {
+    this.loading = true;
 
     if (this.isEditMode && this.transaccionId) {
       // Actualizar - asegurarnos de mantener el usuarioId original

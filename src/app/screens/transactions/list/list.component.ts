@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-
 import { TransactionsService } from '../../../services/transactions.service';
 import { AuthService } from '../../../services/auth.service';
 import { CategoriesService } from '../../../services/categories.service';
@@ -13,10 +11,11 @@ import { Categoria } from '../../../shared/interfaces/categoria';
 import { Usuario } from '../../../shared/interfaces/usuario';
 import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
+import { ConfirmDeleteTransactionModalComponent } from '../../../modals/confirm-delete-transaction-modal/confirm-delete-transaction-modal.component';
 
 @Component({
   selector: 'app-list',
-  imports: [RouterLink, CommonModule, FormsModule, CurrencyFormatPipe, DateFormatPipe],
+  imports: [RouterLink, CommonModule, FormsModule, CurrencyFormatPipe, DateFormatPipe, ConfirmDeleteTransactionModalComponent],
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss'
 })
@@ -28,6 +27,10 @@ export class ListComponent implements OnInit {
   currentUser: Usuario | null = null;
   isAdmin: boolean = false;
   loading: boolean = false;
+
+  // Modal state
+  isModalOpen: boolean = false;
+  selectedTransaction: Movimiento | null = null;
 
   // Filtros
   filtros = {
@@ -155,23 +158,32 @@ export class ListComponent implements OnInit {
   }
 
   // Eliminar transacción
-  onDelete(id: number | undefined) {
-    if (!id) return;
+  onDeleteClick(transaccion: Movimiento) {
+    this.selectedTransaction = transaccion;
+    this.isModalOpen = true;
+  }
 
-    if (!confirm('¿Estás seguro de eliminar esta transacción?')) {
-      return;
-    }
+  onConfirmDelete() {
+    if (!this.selectedTransaction?.id) return;
 
-    this.txSvc.delete(id).subscribe({
+    this.txSvc.delete(this.selectedTransaction.id).subscribe({
       next: () => {
         this.load();
-        alert('Transacción eliminada correctamente');
+        this.isModalOpen = false;
+        this.selectedTransaction = null;
+        alert('✅ Transacción eliminada correctamente');
       },
       error: (err) => {
         console.error('Error al eliminar:', err);
-        alert('Error al eliminar la transacción');
+        alert('❌ Error al eliminar la transacción');
+        this.isModalOpen = false;
       }
     });
+  }
+
+  onCancelDelete() {
+    this.isModalOpen = false;
+    this.selectedTransaction = null;
   }
 
   // Verificar si el usuario puede editar/eliminar la transacción
