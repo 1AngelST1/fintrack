@@ -19,6 +19,7 @@
         <select 
           id="usuario" 
           formControlName="usuarioId"
+          (change)="onUsuarioChange($any($event.target).value)"
           class="user-select">
           <option [value]="null">-- Selecciona un usuario --</option>
           <option 

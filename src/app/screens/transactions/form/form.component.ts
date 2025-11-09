@@ -72,10 +72,17 @@ export class FormComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadCategorias();
+    // Cargar usuarios primero si es admin
     if (this.isAdmin) {
       this.loadUsuarios();
     }
+    
+    // Solo cargar categorías si ya hay un usuario seleccionado
+    const usuarioId = this.form.get('usuarioId')?.value;
+    if (usuarioId) {
+      this.loadCategorias();
+    }
+    
     this.checkEditMode();
   }
 
@@ -91,10 +98,19 @@ export class FormComponent implements OnInit {
     });
   }
 
-  // Cargar categorías activas
+  // Cargar categorías activas del usuario seleccionado
   loadCategorias() {
-    this.catSvc.getAll().subscribe({
+    const usuarioId = this.form.get('usuarioId')?.value;
+    
+    if (!usuarioId) {
+      console.warn('No hay usuario seleccionado');
+      this.categorias = [];
+      return;
+    }
+
+    this.catSvc.getByUserId(usuarioId).subscribe({
       next: (cats) => {
+        // Filtrar solo categorías activas
         this.categorias = cats.filter(c => c.estado);
       },
       error: (err) => {
@@ -102,6 +118,23 @@ export class FormComponent implements OnInit {
         this.errorMsg = 'Error al cargar las categorías';
       }
     });
+  }
+
+  // Cuando el admin cambia de usuario, recargar categorías
+  onUsuarioChange(usuarioId: string | number) {
+    // Convertir a número
+    const userId = typeof usuarioId === 'string' ? parseInt(usuarioId, 10) : usuarioId;
+    
+    if (!userId || isNaN(userId)) {
+      this.categorias = [];
+      this.form.patchValue({ categoria: '' });
+      return;
+    }
+    
+    // Resetear la categoría seleccionada
+    this.form.patchValue({ categoria: '' });
+    // Recargar categorías del nuevo usuario
+    this.loadCategorias();
   }
 
   // Verificar si estamos en modo edición

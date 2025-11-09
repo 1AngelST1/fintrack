@@ -11,6 +11,7 @@ import { Categoria } from '../shared/interfaces/categoria';
 export class CategoriesService {
   private apiUrl = `${environment.apiUrl}/categories`;
   private transactionsUrl = `${environment.apiUrl}/transactions`;
+  private budgetsUrl = `${environment.apiUrl}/budgets`;
 
   constructor(private http: HttpClient) { }
 
@@ -60,6 +61,47 @@ export class CategoriesService {
     );
   }
 
+  checkBudgetsForCategory(categoryId: number): Observable<{ hasBudgets: boolean; count: number }> {
+    // Buscar presupuestos por categoriaId
+    return this.http.get<any[]>(`${this.budgetsUrl}?categoriaId=${categoryId}`).pipe(
+      map(budgets => ({
+        hasBudgets: budgets.length > 0,
+        count: budgets.length
+      }))
+    );
+  }
+
+  deleteBudgetsForCategory(categoryId: number): Observable<void> {
+    // Obtener todos los presupuestos de esta categoría y eliminarlos
+    return new Observable(observer => {
+      this.http.get<any[]>(`${this.budgetsUrl}?categoriaId=${categoryId}`).subscribe({
+        next: (budgets) => {
+          if (budgets.length === 0) {
+            observer.next();
+            observer.complete();
+            return;
+          }
+
+          // Eliminar cada presupuesto
+          let completed = 0;
+          budgets.forEach(budget => {
+            this.http.delete(`${this.budgetsUrl}/${budget.id}`).subscribe({
+              next: () => {
+                completed++;
+                if (completed === budgets.length) {
+                  observer.next();
+                  observer.complete();
+                }
+              },
+              error: (err) => observer.error(err)
+            });
+          });
+        },
+        error: (err) => observer.error(err)
+      });
+    });
+  }
+
 
   inactivate(id: number): Observable<Categoria> {
     return this.http.patch<Categoria>(`${this.apiUrl}/${id}`, { estado: false });
@@ -68,35 +110,60 @@ export class CategoriesService {
 
   deleteOrInactivate(id: number, categoryName: string): Observable<{ deleted: boolean; inactivated: boolean; message: string }> {
     return new Observable(observer => {
+      // Primero verificar transacciones y presupuestos
       this.checkTransactionsForCategory(id, categoryName).subscribe({
-        next: ({ hasTransactions, count }) => {
-          if (hasTransactions) {
-            // Si tiene transacciones, inactivar
-            this.inactivate(id).subscribe({
-              next: () => {
-                observer.next({
-                  deleted: false,
-                  inactivated: true,
-                  message: `Categoría inactivada. No se puede eliminar porque tiene ${count} transacción(es) asociada(s).`
+        next: ({ hasTransactions, count: txCount }) => {
+          this.checkBudgetsForCategory(id).subscribe({
+            next: ({ hasBudgets, count: budgetCount }) => {
+              if (hasTransactions) {
+                // Si tiene transacciones, inactivar (sin eliminar presupuestos)
+                this.inactivate(id).subscribe({
+                  next: () => {
+                    observer.next({
+                      deleted: false,
+                      inactivated: true,
+                      message: `Categoría inactivada. No se puede eliminar porque tiene ${txCount} transacción(es) asociada(s).`
+                    });
+                    observer.complete();
+                  },
+                  error: (err) => observer.error(err)
                 });
-                observer.complete();
-              },
-              error: (err) => observer.error(err)
-            });
-          } else {
-            // Si no tiene transacciones, eliminar
-            this.delete(id).subscribe({
-              next: () => {
-                observer.next({
-                  deleted: true,
-                  inactivated: false,
-                  message: 'Categoría eliminada exitosamente.'
+              } else if (hasBudgets) {
+                // Si no tiene transacciones pero sí presupuestos, eliminar presupuestos primero
+                this.deleteBudgetsForCategory(id).subscribe({
+                  next: () => {
+                    // Luego eliminar la categoría
+                    this.delete(id).subscribe({
+                      next: () => {
+                        observer.next({
+                          deleted: true,
+                          inactivated: false,
+                          message: `Categoría eliminada exitosamente. Se eliminaron ${budgetCount} presupuesto(s) asociado(s).`
+                        });
+                        observer.complete();
+                      },
+                      error: (err) => observer.error(err)
+                    });
+                  },
+                  error: (err) => observer.error(err)
                 });
-                observer.complete();
-              },
-              error: (err) => observer.error(err)
-            });
-          }
+              } else {
+                // No tiene transacciones ni presupuestos, eliminar directamente
+                this.delete(id).subscribe({
+                  next: () => {
+                    observer.next({
+                      deleted: true,
+                      inactivated: false,
+                      message: 'Categoría eliminada exitosamente.'
+                    });
+                    observer.complete();
+                  },
+                  error: (err) => observer.error(err)
+                });
+              }
+            },
+            error: (err) => observer.error(err)
+          });
         },
         error: (err) => observer.error(err)
       });
