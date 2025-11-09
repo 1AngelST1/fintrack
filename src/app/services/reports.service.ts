@@ -9,7 +9,7 @@ export class ReportsService {
 
   constructor(private http: HttpClient) {}
 
-  /** Balance mensual */
+  // Balance mensual
   getMonthlyBalance(filters: { usuarioId?: number; fechaDesde?: string; fechaHasta?: string } = {}) {
     let params = new HttpParams();
     if (filters.usuarioId) params = params.set('usuarioId', String(filters.usuarioId));
@@ -29,7 +29,7 @@ export class ReportsService {
     );
   }
 
-  /** Gastos por categoría */
+  // Gastos por categoría
   getExpensesByCategory(filters: { usuarioId?: number; fechaDesde?: string; fechaHasta?: string } = {}) {
     let params = new HttpParams();
     if (filters.usuarioId) params = params.set('usuarioId', String(filters.usuarioId));
@@ -48,7 +48,7 @@ export class ReportsService {
     );
   }
 
-  /** Evolución mensual de ingresos y gastos */
+  // Evolución mensual de ingresos y gastos
   getMonthlyEvolution(filters: { usuarioId?: number; fechaDesde?: string; fechaHasta?: string } = {}) {
     let params = new HttpParams();
     if (filters.usuarioId) params = params.set('usuarioId', String(filters.usuarioId));

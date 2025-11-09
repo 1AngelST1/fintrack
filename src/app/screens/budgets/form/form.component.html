@@ -10,6 +10,32 @@
     <form (ngSubmit)="onSubmit()" #budgetForm="ngForm">
       <div class="form-body">
         
+        <!-- Usuario (solo para administradores) - PRIMERO -->
+        <div class="form-group user-selector-group" *ngIf="isAdmin">
+          <label for="usuario">
+            <span class="label-text">👤 <strong>Usuario (¿Para quién es este presupuesto?)</strong></span>
+            <span class="required">*</span>
+          </label>
+          <select 
+            id="usuario"
+            name="usuarioId"
+            [(ngModel)]="presupuesto.usuarioId"
+            required
+            class="form-control user-select"
+            [disabled]="loading || isEditMode">
+            <option [ngValue]="0">-- Selecciona un usuario --</option>
+            <option *ngFor="let user of usuarios" [ngValue]="user.id">
+              👤 {{ user.nombre }} - {{ user.correo }}
+            </option>
+          </select>
+          <small *ngIf="isEditMode" class="help-text warning-text">
+            ℹ️ No se puede cambiar el usuario de un presupuesto existente
+          </small>
+          <small *ngIf="!isEditMode" class="help-text info-text">
+            💡 Selecciona el usuario para quien deseas crear este presupuesto
+          </small>
+        </div>
+
         <div class="form-group">
           <label for="categoria">
             <span class="label-text">Categoría (Solo Gastos)</span>

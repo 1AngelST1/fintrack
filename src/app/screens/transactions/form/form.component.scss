@@ -114,6 +114,26 @@
           display: block;
         }
       }
+
+      .help-text {
+        margin-top: 0.4rem;
+        color: #95a5a6;
+        font-size: 0.85rem;
+        font-style: italic;
+      }
+
+      // Selector de usuario destacado
+      .user-select {
+        font-size: 1.05rem;
+        font-weight: 500;
+        border: 2px solid $color-accent;
+        background-color: #1e2a38;
+        
+        &:focus {
+          border-color: #5dade2;
+          box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.3);
+        }
+      }
     }
 
     .success {

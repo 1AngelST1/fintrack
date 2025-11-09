@@ -11,7 +11,7 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  /** LOGIN SIMULADO */
+  // LOGIN SIMULADO
   login(correo: string, password: string): Observable<any> {
     return this.http.get<Usuario[]>(`${this.api}?correo=${correo}`).pipe(
       map(users => {
@@ -34,14 +34,14 @@ export class AuthService {
     );
   }
 
-  /** VERIFICAR SI CORREO YA EXISTE */
+  // VERIFICAR SI CORREO YA EXISTE
   checkEmailExists(correo: string): Observable<boolean> {
     return this.http.get<Usuario[]>(`${this.api}?correo=${correo}`).pipe(
       map(users => users.length > 0)
     );
   }
 
-  /** REGISTRO */
+  // REGISTRO
   register(user: Usuario): Observable<Usuario> {
     // Primero verificamos si el correo ya existe
     return this.checkEmailExists(user.correo).pipe(
@@ -55,24 +55,24 @@ export class AuthService {
     );
   }
 
-  /** LOGOUT */
+  // LOGOUT 
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   }
 
-  /** OBTENER USUARIO ACTUAL */
+  // OBTENER USUARIO ACTUAL 
   getCurrentUser(): Usuario | null {
     const data = localStorage.getItem('user');
     return data ? JSON.parse(data) : null;
   }
 
-  /** COMPROBAR SESIÓN */
+  // COMPROBAR SESIÓN 
   isLoggedIn(): boolean {
     return !!localStorage.getItem('token');
   }
 
-  /** ACTUALIZAR PERFIL */
+  // ACTUALIZAR PERFIL
   updateProfile(userId: number, updates: Partial<Usuario>): Observable<Usuario> {
     return this.http.patch<Usuario>(`${this.api}/${userId}`, updates).pipe(
       map(updatedUser => {

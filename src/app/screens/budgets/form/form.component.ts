@@ -1,17 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BudgetsService, Presupuesto } from '../../../services/budgets.service';
 import { CategoriesService } from '../../../services/categories.service';
 import { AuthService } from '../../../services/auth.service';
+import { UsersService } from '../../../services/users.service';
 import { Usuario } from '../../../shared/interfaces/usuario';
 import { Categoria } from '../../../shared/interfaces/categoria';
 import { DuplicateBudgetModalComponent } from '../../../modals/duplicate-budget-modal/duplicate-budget-modal.component';
 
 @Component({
   selector: 'app-form',
-  imports: [CommonModule, FormsModule, RouterLink, DuplicateBudgetModalComponent],
+  imports: [CommonModule, FormsModule, DuplicateBudgetModalComponent],
   templateUrl: './form.component.html',
   styleUrl: './form.component.scss'
 })
@@ -25,10 +26,12 @@ export class FormComponent implements OnInit {
   };
 
   categorias: Categoria[] = [];
+  usuarios: Usuario[] = [];
   periodos: Array<'mensual' | 'anual'> = ['mensual', 'anual'];
   isEditMode: boolean = false;
   loading: boolean = false;
   currentUser: Usuario | null = null;
+  isAdmin: boolean = false;
 
   // Modal de presupuesto duplicado
   isDuplicateModalOpen: boolean = false;
@@ -42,10 +45,13 @@ export class FormComponent implements OnInit {
     private budgetSvc: BudgetsService,
     private categoriesSvc: CategoriesService,
     private auth: AuthService,
+    private usersSvc: UsersService,
     private router: Router,
     private route: ActivatedRoute
   ) {
     this.currentUser = this.auth.getCurrentUser();
+    this.isAdmin = this.currentUser?.rol === 'admin';
+    
     if (this.currentUser?.id) {
       this.presupuesto.usuarioId = this.currentUser.id;
     }
@@ -57,8 +63,24 @@ export class FormComponent implements OnInit {
       this.isEditMode = true;
     }
     
+    // Cargar usuarios si es admin
+    if (this.isAdmin) {
+      this.loadUsuarios();
+    }
+    
     // Cargar categorías primero, luego cargar el presupuesto si es edición
     this.loadCategorias();
+  }
+
+  loadUsuarios() {
+    this.usersSvc.getAll().subscribe({
+      next: (users) => {
+        this.usuarios = users;
+      },
+      error: (err) => {
+        console.error('Error al cargar usuarios:', err);
+      }
+    });
   }
 
   loadCategorias() {
@@ -157,13 +179,17 @@ export class FormComponent implements OnInit {
   }
 
   checkDuplicateAndSave() {
-    if (!this.currentUser?.id) {
-      this.saveBudget();
+    // Usar el usuarioId del presupuesto (que puede ser seleccionado por admin)
+    const targetUserId = this.presupuesto.usuarioId;
+    
+    if (!targetUserId || targetUserId === 0) {
+      alert('⚠️ Debe seleccionar un usuario');
+      this.loading = false;
       return;
     }
 
     // Buscar presupuestos existentes para esta categoría y usuario
-    this.budgetSvc.getByCategoryAndUser(this.presupuesto.categoriaId, this.currentUser.id)
+    this.budgetSvc.getByCategoryAndUser(this.presupuesto.categoriaId, targetUserId)
       .subscribe({
         next: (existingBudgets) => {
           // Si es modo edición, excluir el presupuesto actual

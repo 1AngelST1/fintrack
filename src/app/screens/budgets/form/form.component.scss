@@ -96,6 +96,42 @@
       margin-top: 0.5rem;
       font-size: 0.85rem;
       color: #6c757d;
+
+      &.info-text {
+        color: #667eea;
+        font-weight: 500;
+      }
+
+      &.warning-text {
+        color: #f39c12;
+        font-weight: 500;
+      }
+    }
+
+    // Selector de usuario destacado
+    &.user-selector-group {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      border: 2px dashed #667eea;
+      margin-bottom: 2rem;
+
+      label {
+        color: #667eea;
+        font-size: 1.05rem;
+      }
+
+      .user-select {
+        font-size: 1.05rem;
+        font-weight: 500;
+        border: 2px solid #667eea;
+        background-color: white;
+        
+        &:focus {
+          border-color: #764ba2;
+          box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+        }
+      }
     }
   }
 

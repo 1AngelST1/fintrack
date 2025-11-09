@@ -10,6 +10,35 @@
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!loading">
     <div class="form-grid">
+      <!-- Usuario (solo para administradores) - PRIMERO -->
+      <div class="form-group full-width" *ngIf="isAdmin">
+        <label for="usuario">
+          <span class="label-icon">👤</span>
+          <strong>Usuario (¿Para quién es este movimiento?)</strong>
+        </label>
+        <select 
+          id="usuario" 
+          formControlName="usuarioId"
+          class="user-select">
+          <option [value]="null">-- Selecciona un usuario --</option>
+          <option 
+            *ngFor="let user of usuarios" 
+            [value]="user.id"
+          >
+            👤 {{ user.nombre }} - {{ user.correo }}
+          </option>
+        </select>
+        <div class="error" *ngIf="f['usuarioId'].touched && f['usuarioId'].invalid">
+          <small>⚠️ Debes seleccionar un usuario para continuar.</small>
+        </div>
+        <small *ngIf="isEditMode" class="help-text">
+          ℹ️ No se puede cambiar el usuario de una transacción existente
+        </small>
+        <small *ngIf="!isEditMode" class="help-text">
+          💡 Selecciona el usuario para quien deseas crear esta transacción
+        </small>
+      </div>
+
       <!-- Tipo -->
       <div class="form-group">
         <label for="tipo">

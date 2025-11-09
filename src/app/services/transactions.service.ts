@@ -58,23 +58,18 @@ export class TransactionsService {
     return this.http.get<Movimiento[]>(this.apiUrl, { params });
   }
 
-  /**
-   * Obtener transacción por ID
-   */
+  // Obtener transacción por ID
+
   getById(id: number): Observable<Movimiento> {
     return this.http.get<Movimiento>(`${this.apiUrl}/${id}`);
   }
 
-  /**
-   * Obtener transacciones por usuario
-   */
+  //Obtener transacciones por usuario
   getByUserId(usuarioId: number): Observable<Movimiento[]> {
     return this.getAll({ usuarioId });
   }
 
-  /**
-   * Obtener transacciones por tipo
-   */
+  // Obtener transacciones por tipo
   getByTipo(tipo: 'Ingreso' | 'Gasto'): Observable<Movimiento[]> {
     return this.getAll({ tipo });
   }
@@ -93,17 +88,13 @@ export class TransactionsService {
     return this.http.post<Movimiento>(this.apiUrl, movimiento);
   }
 
-  /**
-   * Actualizar transacción existente
-   * Usa PATCH para actualización parcial (mantiene campos no enviados)
-   */
+  //Actualizar transacción existente
+  //Usa PATCH para actualización parcial (mantiene campos no enviados)
   update(id: number, movimiento: Partial<Movimiento>): Observable<Movimiento> {
     return this.http.patch<Movimiento>(`${this.apiUrl}/${id}`, movimiento);
   }
 
-  /**
-   * Eliminar transacción
-   */
+  //Eliminar transacción
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }

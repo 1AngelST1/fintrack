@@ -6,7 +6,9 @@ import { TransactionsService } from '../../../services/transactions.service';
 import { CategoriesService } from '../../../services/categories.service';
 import { AuthService } from '../../../services/auth.service';
 import { BudgetsService } from '../../../services/budgets.service';
+import { UsersService } from '../../../services/users.service';
 import { Categoria } from '../../../shared/interfaces/categoria';
+import { Usuario } from '../../../shared/interfaces/usuario';
 import { BudgetWarningModalComponent } from '../../../modals/budget-warning-modal/budget-warning-modal.component';
 import { forkJoin } from 'rxjs';
 
@@ -19,12 +21,14 @@ import { forkJoin } from 'rxjs';
 export class FormComponent implements OnInit {
   form: FormGroup;
   categorias: Categoria[] = [];
+  usuarios: Usuario[] = [];
   isEditMode: boolean = false;
   transaccionId: number | null = null;
   originalUsuarioId: number | undefined;
   loading: boolean = false;
   errorMsg: string = '';
   successMsg: string = '';
+  isAdmin: boolean = false;
 
   // Modal de presupuesto
   isBudgetWarningOpen: boolean = false;
@@ -41,10 +45,24 @@ export class FormComponent implements OnInit {
     private catSvc: CategoriesService,
     private auth: AuthService,
     private budgetSvc: BudgetsService,
+    private usersSvc: UsersService,
     private router: Router,
     private route: ActivatedRoute
   ) {
+    const currentUser = this.auth.getCurrentUser();
+    
+    // Asignar isAdmin EXPLÍCITAMENTE
+    if (currentUser && currentUser.rol === 'admin') {
+      this.isAdmin = true;
+    } else {
+      this.isAdmin = false;
+    }
+    
+    // Si NO es admin, usar el ID del usuario actual automáticamente
+    const defaultUserId = this.isAdmin ? null : currentUser?.id;
+    
     this.form = this.fb.group({
+      usuarioId: [defaultUserId, Validators.required],
       tipo: ['Gasto', Validators.required],
       categoria: ['', Validators.required],
       monto: [null, [Validators.required, Validators.min(0.01)]],
@@ -55,7 +73,22 @@ export class FormComponent implements OnInit {
 
   ngOnInit() {
     this.loadCategorias();
+    if (this.isAdmin) {
+      this.loadUsuarios();
+    }
     this.checkEditMode();
+  }
+
+  // Cargar usuarios (solo para administradores)
+  loadUsuarios() {
+    this.usersSvc.getAll().subscribe({
+      next: (users) => {
+        this.usuarios = users;
+      },
+      error: (err) => {
+        console.error('Error al cargar usuarios:', err);
+      }
+    });
   }
 
   // Cargar categorías activas
@@ -77,6 +110,12 @@ export class FormComponent implements OnInit {
     if (id) {
       this.isEditMode = true;
       this.transaccionId = Number(id);
+      
+      // Deshabilitar el campo de usuario en modo edición
+      if (this.isAdmin) {
+        this.form.get('usuarioId')?.disable();
+      }
+      
       this.loadTransaccion(this.transaccionId);
     }
   }
@@ -101,6 +140,7 @@ export class FormComponent implements OnInit {
         this.originalUsuarioId = transaccion.usuarioId;
 
         this.form.patchValue({
+          usuarioId: transaccion.usuarioId,
           tipo: transaccion.tipo,
           categoria: transaccion.categoria,
           monto: transaccion.monto,
@@ -170,9 +210,12 @@ export class FormComponent implements OnInit {
 
   // Verificar presupuesto antes de guardar
   checkBudgetAndSave(formData: any) {
-    const currentUser = this.auth.getCurrentUser();
-    if (!currentUser?.id) {
-      console.log('❌ No hay usuario logueado');
+    // Obtener el usuario para verificar presupuesto:
+    // - Usar el usuarioId del formulario (que puede ser seleccionado por admin o el usuario actual)
+    const targetUserId = formData.usuarioId;
+
+    if (!targetUserId) {
+      console.log('❌ No hay usuario seleccionado');
       this.saveTransaction(formData);
       return;
     }
@@ -184,17 +227,20 @@ export class FormComponent implements OnInit {
       return;
     }
 
+    const currentUser = this.auth.getCurrentUser();
     console.log('🔍 Verificando presupuesto para:', {
       categoria: categoria.nombre,
       categoriaId: categoria.id,
-      usuarioId: currentUser.id
+      usuarioId: targetUserId,
+      esAdmin: currentUser?.rol === 'admin',
+      esEdicion: this.isEditMode
     });
 
     // Obtener presupuesto y gastos actuales de la categoría
     forkJoin({
-      budgets: this.budgetSvc.getByCategoryAndUser(categoria.id, currentUser.id),
+      budgets: this.budgetSvc.getByCategoryAndUser(categoria.id, targetUserId),
       transactions: this.txSvc.getAll({
-        usuarioId: currentUser.id,
+        usuarioId: targetUserId,
         categoria: formData.categoria,
         tipo: 'Gasto'
       })
@@ -295,13 +341,8 @@ export class FormComponent implements OnInit {
     this.loading = true;
 
     if (this.isEditMode && this.transaccionId) {
-      // Actualizar - asegurarnos de mantener el usuarioId original
-      const updateData = {
-        ...formData,
-        usuarioId: this.originalUsuarioId // Mantener el usuario original
-      };
-      
-      this.txSvc.update(this.transaccionId, updateData).subscribe({
+      // Actualizar - el usuarioId ya viene en formData
+      this.txSvc.update(this.transaccionId, formData).subscribe({
         next: () => {
           this.successMsg = 'Transacción actualizada correctamente';
           setTimeout(() => {
@@ -315,7 +356,7 @@ export class FormComponent implements OnInit {
         }
       });
     } else {
-      // Crear
+      // Crear - el usuarioId ya viene en formData
       this.txSvc.create(formData).subscribe({
         next: () => {
           this.successMsg = 'Transacción creada correctamente';
