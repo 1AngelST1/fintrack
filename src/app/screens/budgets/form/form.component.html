@@ -19,7 +19,8 @@
           <select 
             id="usuario"
             name="usuarioId"
-            [(ngModel)]="presupuesto.usuarioId"
+            [ngModel]="presupuesto.usuarioId"
+            (ngModelChange)="onUsuarioChange($event)"
             required
             class="form-control user-select"
             [disabled]="loading || isEditMode">

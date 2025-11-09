@@ -1,3 +1,8 @@
+<!-- Overlay para móvil -->
+<div class="sidebar-overlay" 
+     [class.active]="!sidebarService.isCollapsed()"
+     (click)="sidebarService.toggle()"></div>
+
 <aside class="sidebar" [class.collapsed]="sidebarService.isCollapsed()">
   <button class="toggle-btn" (click)="sidebarService.toggle()" title="Toggle sidebar">
     <span *ngIf="!sidebarService.isCollapsed()">◀</span>
@@ -6,37 +11,37 @@
 
   <ul>
     <li>
-      <a routerLink="/dashboard" routerLinkActive="active">
+      <a routerLink="/dashboard" routerLinkActive="active" (click)="onLinkClick()">
         <span class="icon">🏠</span>
         <span class="text">Dashboard</span>
       </a>
     </li>
     <li>
-      <a routerLink="/transactions" routerLinkActive="active">
+      <a routerLink="/transactions" routerLinkActive="active" (click)="onLinkClick()">
         <span class="icon">💰</span>
         <span class="text">Movimientos</span>
       </a>
     </li>
     <li>
-      <a routerLink="/budgets" routerLinkActive="active">
+      <a routerLink="/budgets" routerLinkActive="active" (click)="onLinkClick()">
         <span class="icon">📊</span>
         <span class="text">Presupuestos</span>
       </a>
     </li>
     <li>
-      <a routerLink="/categories" routerLinkActive="active">
+      <a routerLink="/categories" routerLinkActive="active" (click)="onLinkClick()">
         <span class="icon">📂</span>
         <span class="text">Categorías</span>
       </a>
     </li>
     <li>
-      <a routerLink="/reports" routerLinkActive="active">
+      <a routerLink="/reports" routerLinkActive="active" (click)="onLinkClick()">
         <span class="icon">📈</span>
         <span class="text">Reportes</span>
       </a>
     </li>
     <li>
-      <a routerLink="/profile" routerLinkActive="active">
+      <a routerLink="/profile" routerLinkActive="active" (click)="onLinkClick()">
         <span class="icon">👤</span>
         <span class="text">Perfil</span>
       </a>

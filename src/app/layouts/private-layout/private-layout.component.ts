@@ -28,6 +28,8 @@ import { SidebarService } from '../../services/sidebar.service';
       min-height: calc(100vh - 60px);
       margin-top: 60px; /* Altura del navbar fixed */
       position: relative;
+      overflow-x: hidden;
+      width: 100%;
     }
 
     .content {
@@ -37,6 +39,9 @@ import { SidebarService } from '../../services/sidebar.service';
       background: #f5f5f5;
       transition: margin-left 0.3s ease;
       min-height: calc(100vh - 60px);
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
 
       &.expanded {
         margin-left: 60px; /* Ancho del sidebar colapsado */
@@ -44,12 +49,27 @@ import { SidebarService } from '../../services/sidebar.service';
     }
 
     @media (max-width: 768px) {
+      .layout {
+        margin-top: 60px;
+        width: 100vw;
+        max-width: 100%;
+      }
+
       .content {
         margin-left: 0;
+        padding: 1rem;
+        width: 100%;
+        max-width: 100vw;
 
         &.expanded {
           margin-left: 0;
         }
+      }
+    }
+
+    @media (max-width: 480px) {
+      .content {
+        padding: 0.5rem;
       }
     }
   `]

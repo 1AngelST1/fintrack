@@ -19,4 +19,11 @@ export class SidebarComponent implements OnInit {
     const user = this.authService.getCurrentUser();
     this.isAdmin = user?.rol === 'admin';
   }
+
+  onLinkClick() {
+    // En móvil, cerrar el sidebar al hacer clic en un enlace
+    if (window.innerWidth <= 768) {
+      this.sidebarService.toggle();
+    }
+  }
 }

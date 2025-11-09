@@ -8,6 +8,20 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100%;
+  overflow-x: hidden; /* Prevenir scroll horizontal */
+  width: 100%;
+  max-width: 100vw;
+  position: relative;
+}
+
+* {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* Prevenir que los contenedores hijos causen overflow */
+main, section, div, article, aside {
+  max-width: 100%;
 }
 
 a {
@@ -31,4 +45,43 @@ button {
 
 button:hover {
   background-color: color.scale($color-accent, $lightness: 10%);
+}
+
+/* Responsive Global Styles */
+@media (max-width: 768px) {
+  html, body {
+    font-size: 14px;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  input, select, textarea {
+    font-size: 16px !important; /* Prevenir zoom en iOS */
+  }
+}
+
+@media (max-width: 480px) {
+  html, body {
+    font-size: 13px;
+  }
+}
+
+/* Mejoras de scroll en móvil */
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ocultar scrollbar en móvil pero mantener funcionalidad */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba($color-accent, 0.3);
+    border-radius: 10px;
+  }
 }

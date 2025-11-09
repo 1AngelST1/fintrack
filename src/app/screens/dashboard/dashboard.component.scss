@@ -4,6 +4,9 @@
   padding: 2rem;
   max-width: 1400px;
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 
   .dashboard-header {
     display: flex;
@@ -337,6 +340,8 @@
 
   // Responsive
   @media (max-width: 1024px) {
+    padding: 1.5rem;
+    
     .stats-grid {
       grid-template-columns: 1fr;
     }
@@ -352,15 +357,44 @@
 
   @media (max-width: 768px) {
     padding: 1rem;
+    max-width: 100%;
+    width: 100%;
 
     .dashboard-header {
       flex-direction: column;
       align-items: flex-start;
       gap: 1rem;
+      width: 100%;
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      .btn-new-transaction {
+        width: 100%;
+      }
+    }
+
+    .stats-grid,
+    .dashboard-content,
+    .quick-actions .actions-grid {
+      width: 100%;
+      max-width: 100%;
     }
 
     .quick-actions .actions-grid {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.5rem;
+
+    .stat-card,
+    .chart-card,
+    .quick-actions .action-card {
+      width: 100%;
+      max-width: 100%;
     }
   }
 }

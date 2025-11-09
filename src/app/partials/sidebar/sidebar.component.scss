@@ -1,6 +1,24 @@
 @use 'sass:color';
 @use '../../shared/styles/variables' as *;
 
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 60px;
+  left: 0;
+  width: 100%;
+  height: calc(100vh - 60px);
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  &.active {
+    display: block;
+    opacity: 1;
+  }
+}
+
 .sidebar {
   width: 220px;
   background-color: color.scale($color-bg-card, $lightness: -3%);
@@ -109,11 +127,59 @@
 
 // Responsive: ocultar en móviles
 @media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
+  .sidebar-overlay {
+    display: none;
 
+    &.active {
+      display: block;
+    }
+  }
+
+  .sidebar {
+    transform: translateX(-220px); /* Oculto por defecto */
+    z-index: 1001; /* Más alto en móvil para overlay */
+    width: 220px !important; /* Siempre expandido en móvil cuando se muestra */
+
+    /* Cuando NO está colapsado (botón presionado), se MUESTRA */
     &:not(.collapsed) {
       transform: translateX(0);
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Cuando está colapsado, permanece oculto */
+    &.collapsed {
+      transform: translateX(-220px);
+      width: 220px !important;
+    }
+
+    .text {
+      opacity: 1 !important;
+      width: auto !important;
+    }
+
+    a {
+      justify-content: flex-start !important;
+      padding: 0.6rem 1.2rem !important;
+    }
+
+    .toggle-btn {
+      justify-content: flex-end !important;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 200px !important;
+    transform: translateX(-200px);
+    
+    &:not(.collapsed) {
+      transform: translateX(0);
+    }
+
+    &.collapsed {
+      transform: translateX(-200px);
+      width: 200px !important;
     }
   }
 }

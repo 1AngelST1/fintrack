@@ -84,10 +84,19 @@ export class FormComponent implements OnInit {
   }
 
   loadCategorias() {
-    this.categoriesSvc.getAll().subscribe({
+    // Si es admin, cargar las categorías del usuario seleccionado
+    // Si no es admin, cargar solo las del usuario actual
+    const userId = this.presupuesto.usuarioId;
+    
+    if (!userId) {
+      console.warn('No hay usuario seleccionado');
+      return;
+    }
+
+    this.categoriesSvc.getByUserId(userId).subscribe({
       next: (cats) => {
-        // Filtrar solo categorías de tipo "Gasto"
-        this.categorias = cats.filter(c => c.tipo === 'Gasto');
+        // Filtrar solo categorías de tipo "Gasto" y activas
+        this.categorias = cats.filter(c => c.tipo === 'Gasto' && c.estado);
         
         // Si es modo edición, cargar el presupuesto después de cargar las categorías
         const id = this.route.snapshot.params['id'];
@@ -107,6 +116,14 @@ export class FormComponent implements OnInit {
       this.presupuesto.categoriaId = categoria.id!;
       this.presupuesto.categoria = categoria.nombre;
     }
+  }
+
+  onUsuarioChange(usuarioId: number) {
+    // Cuando cambia el usuario (solo para admin), recargar las categorías de ese usuario
+    this.presupuesto.usuarioId = usuarioId;
+    this.presupuesto.categoriaId = 0; // Resetear la categoría seleccionada
+    this.presupuesto.categoria = '';
+    this.loadCategorias(); // Recargar categorías del nuevo usuario
   }
 
   loadPresupuesto(id: number) {

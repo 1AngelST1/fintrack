@@ -4,6 +4,9 @@
   padding: 2rem;
   max-width: 1400px;
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 
   .header {
     display: flex;
@@ -280,6 +283,14 @@
   }
 
   // Responsive
+  @media (max-width: 1024px) {
+    padding: 1.5rem;
+    
+    .filters-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+  }
+
   @media (max-width: 768px) {
     padding: 1rem;
 
@@ -287,18 +298,56 @@
       flex-direction: column;
       align-items: flex-start;
       gap: 1rem;
+
+      .btn {
+        width: 100%;
+      }
     }
 
     .filters-grid {
       grid-template-columns: 1fr !important;
+      gap: 1rem;
     }
 
     .table-container {
       overflow-x: auto;
+      padding: 1rem;
     }
 
     table {
       min-width: 600px;
+      font-size: 0.875rem;
+
+      thead th,
+      tbody td {
+        padding: 0.75rem 0.5rem;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.5rem;
+
+    .header h2 {
+      font-size: 1.5rem;
+    }
+
+    .table-container {
+      padding: 0.5rem;
+    }
+
+    table {
+      min-width: 500px;
+      font-size: 0.8rem;
+
+      .actions {
+        gap: 0.25rem;
+
+        .btn {
+          padding: 0.4rem;
+          font-size: 0.8rem;
+        }
+      }
     }
   }
 }

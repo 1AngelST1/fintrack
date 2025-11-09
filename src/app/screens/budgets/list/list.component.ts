@@ -148,8 +148,10 @@ export class ListComponent implements OnInit {
 
     this.budgetSvc.delete(id).subscribe({
       next: () => {
+        // Actualizar ambas listas inmediatamente
+        this.presupuestos = this.presupuestos.filter(p => p.id !== id);
+        this.presupuestosConProgreso = this.presupuestosConProgreso.filter(p => p.id !== id);
         alert('✅ Presupuesto eliminado correctamente');
-        this.loadPresupuestos();
       },
       error: (err) => {
         console.error('Error al eliminar:', err);
