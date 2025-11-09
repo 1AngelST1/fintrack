@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
-import { Observable, of, throwError } from 'rxjs';
-import { map, delay, switchMap, catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment.production';
+import { Observable, throwError } from 'rxjs';
+import { map, delay, switchMap } from 'rxjs/operators';
 import { Usuario } from '../shared/interfaces/usuario';
 
 @Injectable({ providedIn: 'root' })
