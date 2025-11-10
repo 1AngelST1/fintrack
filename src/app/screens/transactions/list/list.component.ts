@@ -97,12 +97,29 @@ export class ListComponent implements OnInit {
 
   // Cargar categorías para el filtro
   loadCategorias() {
-    this.catSvc.getAll().subscribe({
-      next: (cats) => {
-        this.categorias = cats.filter(c => c.estado);
-      },
-      error: (err) => console.error('Error al cargar categorías:', err)
-    });
+    // Si el usuario es admin, mostrar todas las categorías activas.
+    // Si no, mostrar solo las categorías pertenecientes al usuario actual.
+    if (this.isAdmin) {
+      this.catSvc.getAll().subscribe({
+        next: (cats) => {
+          this.categorias = cats.filter(c => c.estado);
+        },
+        error: (err) => console.error('Error al cargar categorías:', err)
+      });
+    } else if (this.currentUser?.id) {
+      this.catSvc.getByUserId(this.currentUser.id).subscribe({
+        next: (cats) => {
+          this.categorias = cats.filter(c => c.estado);
+        },
+        error: (err) => console.error('Error al cargar categorías del usuario:', err)
+      });
+    } else {
+      // Fallback: intentar cargar todas si no se conoce el usuario
+      this.catSvc.getAll().subscribe({
+        next: (cats) => this.categorias = cats.filter(c => c.estado),
+        error: (err) => console.error('Error al cargar categorías:', err)
+      });
+    }
   }
 
   // Cargar transacciones con filtros aplicados
