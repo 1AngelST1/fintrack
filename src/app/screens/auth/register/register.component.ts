@@ -62,10 +62,10 @@ export class RegisterComponent {
 
   onSubmit() {
     // Verificar si hay validaciones asíncronas en proceso
-    if (this.form.pending) {
-      console.log('Esperando validación asíncrona...');
+    /*if (this.form.pending) {
+      //console.log('Esperando validación asíncrona...');
       return;
-    }
+    }*/
 
     if (this.form.invalid || this.isLoading) {
       this.form.markAllAsTouched();

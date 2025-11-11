@@ -72,7 +72,7 @@ export class ListComponent implements OnInit {
           this.usuarios = users;
           // Crear mapa para acceso rápido
           this.usuariosMap = new Map(users.map(u => [u.id!, u]));
-          console.log('✅ Usuarios cargados:', this.usuariosMap);
+          //console.log('✅ Usuarios cargados:', this.usuariosMap);
           resolve();
         },
         error: (err) => {
@@ -88,10 +88,10 @@ export class ListComponent implements OnInit {
     const usuario = this.usuariosMap.get(usuarioId);
     if (usuario) {
       const nombreCompleto = `${usuario.nombre} ${usuario.apellidos}`.trim();
-      console.log(`Usuario ${usuarioId}:`, nombreCompleto);
+      //console.log(`Usuario ${usuarioId}:`, nombreCompleto);
       return nombreCompleto;
     }
-    console.log(`⚠️ Usuario ${usuarioId} no encontrado en el mapa`);
+    //console.log(`⚠️ Usuario ${usuarioId} no encontrado en el mapa`);
     return `Usuario #${usuarioId}`;
   }
 

@@ -217,12 +217,12 @@ export class FormComponent implements OnInit {
       ? parseInt(this.presupuesto.categoriaId, 10)
       : this.presupuesto.categoriaId;
 
-    console.log('🔍 Verificando duplicados:', { 
-      isEditMode: this.isEditMode, 
-      presupuestoId: this.presupuesto.id,
-      categoriaId,
-      targetUserId 
-    });
+    //console.log('🔍 Verificando duplicados:', { 
+    //  isEditMode: this.isEditMode, 
+    //  presupuestoId: this.presupuesto.id,
+    //  categoriaId,
+    //  targetUserId 
+    //});
 
     // Buscar presupuestos existentes para esta categoría y usuario
     this.budgetSvc.getByCategoryAndUser(categoriaId, targetUserId)
@@ -289,7 +289,7 @@ export class FormComponent implements OnInit {
           this.router.navigate(['/budgets']);
         },
         error: (err) => {
-          console.error('Error al actualizar:', err);
+          //console.error('Error al actualizar:', err);
           alert('❌ Error al actualizar el presupuesto');
           this.loading = false;
         }
@@ -302,7 +302,7 @@ export class FormComponent implements OnInit {
           this.router.navigate(['/budgets']);
         },
         error: (err) => {
-          console.error('Error al crear:', err);
+          //console.error('Error al crear:', err);
           alert('❌ Error al crear el presupuesto');
           this.loading = false;
         }
