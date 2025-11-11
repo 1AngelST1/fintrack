@@ -147,6 +147,9 @@ export class FormComponent implements OnInit {
 
         this.presupuesto = { ...budget };
         
+        // Asegurar que el ID se mantiene
+        console.log('💾 ID del presupuesto después de asignación:', this.presupuesto.id);
+        
         // Actualizar el nombre de la categoría desde las categorías cargadas
         console.log('🔍 Buscando categoría con ID:', budget.categoriaId, 'Tipo:', typeof budget.categoriaId);
         console.log('🔍 Categorías disponibles:', this.categorias.map(c => ({ id: c.id, tipo: typeof c.id, nombre: c.nombre })));
@@ -213,14 +216,25 @@ export class FormComponent implements OnInit {
       ? parseInt(this.presupuesto.categoriaId, 10)
       : this.presupuesto.categoriaId;
 
+    console.log('🔍 Verificando duplicados:', { 
+      isEditMode: this.isEditMode, 
+      presupuestoId: this.presupuesto.id,
+      categoriaId,
+      targetUserId 
+    });
+
     // Buscar presupuestos existentes para esta categoría y usuario
     this.budgetSvc.getByCategoryAndUser(categoriaId, targetUserId)
       .subscribe({
         next: (existingBudgets) => {
+          console.log('📋 Presupuestos encontrados:', existingBudgets);
+          
           // Si es modo edición, excluir el presupuesto actual
           const duplicates = this.isEditMode 
             ? existingBudgets.filter(b => b.id !== this.presupuesto.id)
             : existingBudgets;
+
+          console.log('🔎 Duplicados después del filtro:', duplicates);
 
           if (duplicates.length > 0) {
             // Ya existe un presupuesto para esta categoría - mostrar modal
