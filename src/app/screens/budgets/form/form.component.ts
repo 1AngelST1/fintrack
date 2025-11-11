@@ -18,6 +18,7 @@ import { DuplicateBudgetModalComponent } from '../../../modals/duplicate-budget-
 })
 export class FormComponent implements OnInit {
   presupuesto: Presupuesto = {
+    id: undefined,
     usuarioId: 0,
     categoriaId: 0,
     categoria: '',
