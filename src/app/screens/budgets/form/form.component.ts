@@ -129,12 +129,12 @@ export class FormComponent implements OnInit {
 
   loadPresupuesto(id: number) {
     this.loading = true;
-    console.log('📝 Cargando presupuesto ID:', id);
-    console.log('📋 Categorías disponibles:', this.categorias);
+    //console.log('📝 Cargando presupuesto ID:', id);
+    //console.log('📋 Categorías disponibles:', this.categorias);
     
     this.budgetSvc.getById(id).subscribe({
       next: (budget) => {
-        console.log('💾 Presupuesto cargado:', budget);
+        //console.log('💾 Presupuesto cargado:', budget);
         
         // Verificar que el usuario actual puede editar este presupuesto
         const isAdmin = this.currentUser?.rol === 'admin';
@@ -149,27 +149,27 @@ export class FormComponent implements OnInit {
         this.presupuesto = { ...budget };
         
         // Asegurar que el ID se mantiene
-        console.log('💾 ID del presupuesto después de asignación:', this.presupuesto.id);
+        //console.log('💾 ID del presupuesto después de asignación:', this.presupuesto.id);
         
         // Actualizar el nombre de la categoría desde las categorías cargadas
-        console.log('🔍 Buscando categoría con ID:', budget.categoriaId, 'Tipo:', typeof budget.categoriaId);
-        console.log('🔍 Categorías disponibles:', this.categorias.map(c => ({ id: c.id, tipo: typeof c.id, nombre: c.nombre })));
+        //console.log('🔍 Buscando categoría con ID:', budget.categoriaId, 'Tipo:', typeof budget.categoriaId);
+        //console.log('🔍 Categorías disponibles:', this.categorias.map(c => ({ id: c.id, tipo: typeof c.id, nombre: c.nombre })));
         
         // Convertir categoriaId a número para asegurar la comparación
         const categoriaIdNum = typeof budget.categoriaId === 'string' ? parseInt(budget.categoriaId) : budget.categoriaId;
         const categoria = this.categorias.find(c => c.id === categoriaIdNum);
-        console.log('✅ Categoría encontrada:', categoria);
+       // console.log('✅ Categoría encontrada:', categoria);
         
         if (categoria) {
           this.presupuesto.categoria = categoria.nombre;
           this.presupuesto.categoriaId = categoria.id!;
         }
         
-        console.log('📦 Presupuesto final:', this.presupuesto);
+        //console.log('📦 Presupuesto final:', this.presupuesto);
         this.loading = false;
       },
       error: (err) => {
-        console.error('❌ Error al cargar presupuesto:', err);
+        //console.error('❌ Error al cargar presupuesto:', err);
         alert('Error al cargar el presupuesto');
         this.loading = false;
         this.router.navigate(['/budgets']);
@@ -228,14 +228,14 @@ export class FormComponent implements OnInit {
     this.budgetSvc.getByCategoryAndUser(categoriaId, targetUserId)
       .subscribe({
         next: (existingBudgets) => {
-          console.log('📋 Presupuestos encontrados:', existingBudgets);
+          //console.log('📋 Presupuestos encontrados:', existingBudgets);
           
           // Si es modo edición, excluir el presupuesto actual
           const duplicates = this.isEditMode 
             ? existingBudgets.filter(b => b.id !== this.presupuesto.id)
             : existingBudgets;
 
-          console.log('🔎 Duplicados después del filtro:', duplicates);
+          //console.log('🔎 Duplicados después del filtro:', duplicates);
 
           if (duplicates.length > 0) {
             // Ya existe un presupuesto para esta categoría - mostrar modal

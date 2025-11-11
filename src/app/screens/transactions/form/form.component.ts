@@ -249,26 +249,27 @@ export class FormComponent implements OnInit {
     const targetUserId = typeof formData.usuarioId === 'string' ? parseInt(formData.usuarioId, 10) : formData.usuarioId;
 
     if (!targetUserId) {
-      console.log('❌ No hay usuario seleccionado');
+      //console.log('❌ No hay usuario seleccionado');
       this.saveTransaction(formData);
       return;
     }
 
     const categoria = this.categorias.find(c => c.nombre === formData.categoria);
     if (!categoria?.id) {
-      console.log('❌ No se encontró la categoría:', formData.categoria);
+      //console.log('❌ No se encontró la categoría:', formData.categoria);
       this.saveTransaction(formData);
       return;
     }
 
     const currentUser = this.auth.getCurrentUser();
-    console.log('🔍 Verificando presupuesto para:', {
+
+   /*console.log('🔍 Verificando presupuesto para:', {
       categoria: categoria.nombre,
       categoriaId: categoria.id,
       usuarioId: targetUserId,
       esAdmin: currentUser?.rol === 'admin',
       esEdicion: this.isEditMode
-    });
+    });*/
 
     // Obtener presupuesto y gastos actuales de la categoría
     forkJoin({
@@ -280,14 +281,14 @@ export class FormComponent implements OnInit {
       })
     }).subscribe({
       next: ({ budgets, transactions }) => {
-        console.log('📊 Resultados:', { 
+        /*console.log('📊 Resultados:', { 
           budgets: budgets.length, 
           transactions: transactions.length 
-        });
+        });*/
 
         if (budgets.length === 0) {
           // No hay presupuesto, guardar directamente sin alertas
-          console.log('✅ No hay presupuesto configurado, guardando...');
+          //console.log('✅ No hay presupuesto configurado, guardando...');
           this.saveTransaction(formData);
           return;
         }
@@ -308,7 +309,7 @@ export class FormComponent implements OnInit {
         const percentageUsed = (totalAfter / budget.monto) * 100;
         const remaining = budget.monto - totalAfter;
 
-        console.log('💰 Análisis de presupuesto:', {
+        /*console.log('💰 Análisis de presupuesto:', {
           limite: budget.monto,
           gastadoActual: currentSpent,
           nuevo: newAmount,
@@ -317,11 +318,11 @@ export class FormComponent implements OnInit {
           restante: remaining,
           excede: totalAfter > budget.monto,
           esEdicion: this.isEditMode
-        });
+        });*/
 
         if (totalAfter > budget.monto) {
           // BLOQUEAR: Excede el presupuesto - Mostrar MODAL
-          console.log('🚫 ¡Presupuesto excedido! Mostrando modal.');
+          //console.log('🚫 ¡Presupuesto excedido! Mostrando modal.');
           
           this.budgetData = {
             categoryName: formData.categoria,
@@ -334,7 +335,7 @@ export class FormComponent implements OnInit {
           return; // NO guardar
         } else {
           // No excede, pero mostrar alertas según el porcentaje
-          console.log('✅ Dentro del presupuesto, guardando...');
+          //console.log('✅ Dentro del presupuesto, guardando...');
           
           if (percentageUsed >= 90) {
             // Alerta crítica: 90% o más
