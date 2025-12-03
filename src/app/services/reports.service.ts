@@ -5,7 +5,8 @@ import { map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class ReportsService {
-  private api = `${environment.apiUrl}/transactions`;
+  // Aseguramos la barra al final para evitar errores de redirección
+  private api = `${environment.apiUrl}/transactions/`;
 
   constructor(private http: HttpClient) {}
 
@@ -13,8 +14,10 @@ export class ReportsService {
   getMonthlyBalance(filters: { usuarioId?: number; fechaDesde?: string; fechaHasta?: string } = {}) {
     let params = new HttpParams();
     if (filters.usuarioId) params = params.set('usuarioId', String(filters.usuarioId));
-    if (filters.fechaDesde) params = params.set('fecha_gte', filters.fechaDesde);
-    if (filters.fechaHasta) params = params.set('fecha_lte', filters.fechaHasta);
+    
+    // [CORRECCIÓN] Usar los nombres que Django espera
+    if (filters.fechaDesde) params = params.set('fechaDesde', filters.fechaDesde);
+    if (filters.fechaHasta) params = params.set('fechaHasta', filters.fechaHasta);
 
     return this.http.get<any[]>(this.api, { params }).pipe(
       map(transactions => {
@@ -33,15 +36,19 @@ export class ReportsService {
   getExpensesByCategory(filters: { usuarioId?: number; fechaDesde?: string; fechaHasta?: string } = {}) {
     let params = new HttpParams();
     if (filters.usuarioId) params = params.set('usuarioId', String(filters.usuarioId));
-    if (filters.fechaDesde) params = params.set('fecha_gte', filters.fechaDesde);
-    if (filters.fechaHasta) params = params.set('fecha_lte', filters.fechaHasta);
+    
+    // [CORRECCIÓN] Usar los nombres que Django espera
+    if (filters.fechaDesde) params = params.set('fechaDesde', filters.fechaDesde);
+    if (filters.fechaHasta) params = params.set('fechaHasta', filters.fechaHasta);
 
     return this.http.get<any[]>(this.api, { params }).pipe(
       map(transactions => {
         const gastos = transactions.filter(t => t.tipo === 'Gasto');
         const porCategoria: any = {};
         gastos.forEach(g => {
-          porCategoria[g.categoria] = (porCategoria[g.categoria] || 0) + g.monto;
+          // Usamos el nombre de la categoría directamente
+          const catName = g.categoria || 'Sin categoría';
+          porCategoria[catName] = (porCategoria[catName] || 0) + g.monto;
         });
         return porCategoria;
       })
@@ -52,15 +59,18 @@ export class ReportsService {
   getMonthlyEvolution(filters: { usuarioId?: number; fechaDesde?: string; fechaHasta?: string } = {}) {
     let params = new HttpParams();
     if (filters.usuarioId) params = params.set('usuarioId', String(filters.usuarioId));
-    if (filters.fechaDesde) params = params.set('fecha_gte', filters.fechaDesde);
-    if (filters.fechaHasta) params = params.set('fecha_lte', filters.fechaHasta);
+    
+    // [CORRECCIÓN] Usar los nombres que Django espera
+    if (filters.fechaDesde) params = params.set('fechaDesde', filters.fechaDesde);
+    if (filters.fechaHasta) params = params.set('fechaHasta', filters.fechaHasta);
 
     return this.http.get<any[]>(this.api, { params }).pipe(
       map(transactions => {
         const porMes: any = {};
         
         transactions.forEach(t => {
-          const fecha = new Date(t.fecha);
+          // Ajuste de fecha para evitar problemas de zona horaria
+          const fecha = new Date(t.fecha + 'T00:00:00');
           const mesAnio = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
           
           if (!porMes[mesAnio]) {

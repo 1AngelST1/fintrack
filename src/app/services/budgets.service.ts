@@ -18,7 +18,8 @@ export interface Presupuesto {
   providedIn: 'root'
 })
 export class BudgetsService {
-  private apiUrl = `${environment.apiUrl}/budgets`;
+  // [CORRECCIÓN] Agregamos la barra '/' al final para evitar el Error 500 en Django
+  private apiUrl = `${environment.apiUrl}/budgets/`;
 
   constructor(private http: HttpClient) { }
 
@@ -27,10 +28,12 @@ export class BudgetsService {
   }
 
   getById(id: number): Observable<Presupuesto> {
-    return this.http.get<Presupuesto>(`${this.apiUrl}/${id}`);
+    // Ajuste de concatenación: apiUrl ya tiene '/' al final
+    return this.http.get<Presupuesto>(`${this.apiUrl}${id}/`);
   }
 
   getByCategoryAndUser(categoriaId: number, usuarioId: number): Observable<Presupuesto[]> {
+    // Aquí usamos parámetros query, así que la barra base es suficiente
     return this.http.get<Presupuesto[]>(`${this.apiUrl}?categoriaId=${categoriaId}&usuarioId=${usuarioId}`);
   }
 
@@ -39,10 +42,12 @@ export class BudgetsService {
   }
 
   update(id: number, presupuesto: Partial<Presupuesto>): Observable<Presupuesto> {
-    return this.http.put<Presupuesto>(`${this.apiUrl}/${id}`, presupuesto);
+    // Ajuste de concatenación: asegura que termine en '/'
+    return this.http.put<Presupuesto>(`${this.apiUrl}${id}/`, presupuesto);
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    // Ajuste de concatenación: asegura que termine en '/'
+    return this.http.delete<void>(`${this.apiUrl}${id}/`);
   }
 }

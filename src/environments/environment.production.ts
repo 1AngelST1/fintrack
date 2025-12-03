@@ -1,4 +1,4 @@
 export const environment = {
-  production: true,
-  apiUrl: 'https://fintrack2-server.onrender.com/api'
+  production: false,
+  apiUrl: 'http://localhost:8000/api'
 };

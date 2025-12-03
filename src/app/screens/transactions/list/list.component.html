@@ -125,7 +125,7 @@
   [isOpen]="isModalOpen"
   [transactionType]="selectedTransaction?.tipo || ''"
   [transactionAmount]="selectedTransaction?.monto || 0"
-  [transactionCategory]="selectedTransaction?.categoria || ''"
+  [transactionCategory]="(selectedTransaction?.categoria || '') + ''"
   (confirm)="onConfirmDelete()"
   (cancel)="onCancelDelete()">
 </app-confirm-delete-transaction-modal>

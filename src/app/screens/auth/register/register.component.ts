@@ -61,12 +61,6 @@ export class RegisterComponent {
   get f() { return this.form.controls; }
 
   onSubmit() {
-    // Verificar si hay validaciones asíncronas en proceso
-    /*if (this.form.pending) {
-      //console.log('Esperando validación asíncrona...');
-      return;
-    }*/
-
     if (this.form.invalid || this.isLoading) {
       this.form.markAllAsTouched();
       return;
@@ -76,14 +70,18 @@ export class RegisterComponent {
     this.errorMsg = '';
     this.successMsg = '';
 
+    // Llamamos al servicio real
     this.auth.register(this.form.value).subscribe({
-      next: () => {
-        this.successMsg = 'Cuenta creada correctamente';
+      next: (usuarioCreado) => {
+        this.successMsg = `¡Cuenta creada! Bienvenido, ${usuarioCreado.nombre}.`;
         this.form.reset(); 
+        
+        // Redirigimos al login después de 1.5 segundos
         setTimeout(() => this.router.navigate(['/auth/login']), 1500);
       },
       error: (err) => {
-        this.errorMsg = err.message || 'Error al registrar usuario';
+        // Aquí atrapamos el error que formateamos en el servicio (ej. "password: muy corta")
+        this.errorMsg = err.message || 'Error al conectar con el servidor';
         this.isLoading = false;
       }
     });

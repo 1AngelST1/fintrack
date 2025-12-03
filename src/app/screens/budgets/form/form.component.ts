@@ -53,6 +53,7 @@ export class FormComponent implements OnInit {
     this.currentUser = this.auth.getCurrentUser();
     this.isAdmin = this.currentUser?.rol === 'admin';
     
+    // Si no es admin, asignamos el ID del usuario actual por defecto
     if (this.currentUser?.id) {
       this.presupuesto.usuarioId = this.currentUser.id;
     }
@@ -64,12 +65,12 @@ export class FormComponent implements OnInit {
       this.isEditMode = true;
     }
     
-    // Cargar usuarios si es admin
+    // Cargar usuarios solo si es admin
     if (this.isAdmin) {
       this.loadUsuarios();
     }
     
-    // Cargar categorías primero, luego cargar el presupuesto si es edición
+    // Cargar datos iniciales
     this.loadCategorias();
   }
 
@@ -78,41 +79,36 @@ export class FormComponent implements OnInit {
       next: (users) => {
         this.usuarios = users;
       },
-      error: (err) => {
-        console.error('Error al cargar usuarios:', err);
-      }
+      error: (err) => console.error('Error al cargar usuarios:', err)
     });
   }
 
   loadCategorias() {
-    // Si es admin, cargar las categorías del usuario seleccionado
-    // Si no es admin, cargar solo las del usuario actual
     const userId = this.presupuesto.usuarioId;
     
     if (!userId) {
-      console.warn('No hay usuario seleccionado');
-      return;
+      return; // Esperar a que se seleccione un usuario
     }
 
     this.categoriesSvc.getByUserId(userId).subscribe({
       next: (cats) => {
-        // Filtrar solo categorías de tipo "Gasto" y activas
+        // Solo permitimos presupuestos para categorías de "Gasto" activas
         this.categorias = cats.filter(c => c.tipo === 'Gasto' && c.estado);
         
-        // Si es modo edición, cargar el presupuesto después de cargar las categorías
+        // Si estamos editando, cargamos el presupuesto DESPUÉS de tener las categorías
         const id = this.route.snapshot.params['id'];
-        if (this.isEditMode && id) {
+        if (this.isEditMode && id && !this.loading) { // Evitar doble carga
           this.loadPresupuesto(+id);
         }
       },
-      error: (err) => {
-        console.error('Error al cargar categorías:', err);
-      }
+      error: (err) => console.error('Error al cargar categorías:', err)
     });
   }
 
   onCategoriaChange(categoriaId: number) {
-    const categoria = this.categorias.find(c => c.id === categoriaId);
+    // Asegurar conversión a número
+    const catIdNum = Number(categoriaId);
+    const categoria = this.categorias.find(c => c.id === catIdNum);
     if (categoria) {
       this.presupuesto.categoriaId = categoria.id!;
       this.presupuesto.categoria = categoria.nombre;
@@ -120,23 +116,18 @@ export class FormComponent implements OnInit {
   }
 
   onUsuarioChange(usuarioId: number) {
-    // Cuando cambia el usuario (solo para admin), recargar las categorías de ese usuario
-    this.presupuesto.usuarioId = usuarioId;
-    this.presupuesto.categoriaId = 0; // Resetear la categoría seleccionada
+    this.presupuesto.usuarioId = Number(usuarioId);
+    this.presupuesto.categoriaId = 0;
     this.presupuesto.categoria = '';
-    this.loadCategorias(); // Recargar categorías del nuevo usuario
+    this.loadCategorias();
   }
 
   loadPresupuesto(id: number) {
     this.loading = true;
-    //console.log('📝 Cargando presupuesto ID:', id);
-    //console.log('📋 Categorías disponibles:', this.categorias);
     
     this.budgetSvc.getById(id).subscribe({
       next: (budget) => {
-        //console.log('💾 Presupuesto cargado:', budget);
-        
-        // Verificar que el usuario actual puede editar este presupuesto
+        // Validar permisos
         const isAdmin = this.currentUser?.rol === 'admin';
         const isOwner = budget.usuarioId === this.currentUser?.id;
 
@@ -148,28 +139,19 @@ export class FormComponent implements OnInit {
 
         this.presupuesto = { ...budget };
         
-        // Asegurar que el ID se mantiene
-        //console.log('💾 ID del presupuesto después de asignación:', this.presupuesto.id);
-        
-        // Actualizar el nombre de la categoría desde las categorías cargadas
-        //console.log('🔍 Buscando categoría con ID:', budget.categoriaId, 'Tipo:', typeof budget.categoriaId);
-        //console.log('🔍 Categorías disponibles:', this.categorias.map(c => ({ id: c.id, tipo: typeof c.id, nombre: c.nombre })));
-        
-        // Convertir categoriaId a número para asegurar la comparación
-        const categoriaIdNum = typeof budget.categoriaId === 'string' ? parseInt(budget.categoriaId) : budget.categoriaId;
+        // Sincronizar nombre de categoría
+        const categoriaIdNum = Number(budget.categoriaId);
         const categoria = this.categorias.find(c => c.id === categoriaIdNum);
-       // console.log('✅ Categoría encontrada:', categoria);
         
         if (categoria) {
           this.presupuesto.categoria = categoria.nombre;
           this.presupuesto.categoriaId = categoria.id!;
         }
         
-        //console.log('📦 Presupuesto final:', this.presupuesto);
         this.loading = false;
       },
       error: (err) => {
-        //console.error('❌ Error al cargar presupuesto:', err);
+        console.error('Error cargando presupuesto:', err);
         alert('Error al cargar el presupuesto');
         this.loading = false;
         this.router.navigate(['/budgets']);
@@ -178,7 +160,7 @@ export class FormComponent implements OnInit {
   }
 
   onSubmit() {
-    // Validaciones
+    // Validaciones básicas
     if (!this.presupuesto.categoriaId || this.presupuesto.categoriaId === 0) {
       alert('⚠️ Debe seleccionar una categoría');
       return;
@@ -194,51 +176,24 @@ export class FormComponent implements OnInit {
       return;
     }
 
-    // Validar que no exista ya un presupuesto para esta categoría
     this.loading = true;
     this.checkDuplicateAndSave();
   }
 
   checkDuplicateAndSave() {
-    // Usar el usuarioId del presupuesto (que puede ser seleccionado por admin)
-    // Convertir a número si es string
-    const targetUserId = typeof this.presupuesto.usuarioId === 'string' 
-      ? parseInt(this.presupuesto.usuarioId, 10) 
-      : this.presupuesto.usuarioId;
-    
-    if (!targetUserId || targetUserId === 0) {
-      alert('⚠️ Debe seleccionar un usuario');
-      this.loading = false;
-      return;
-    }
+    const targetUserId = Number(this.presupuesto.usuarioId);
+    const categoriaId = Number(this.presupuesto.categoriaId);
 
-    // Convertir categoriaId a número también
-    const categoriaId = typeof this.presupuesto.categoriaId === 'string'
-      ? parseInt(this.presupuesto.categoriaId, 10)
-      : this.presupuesto.categoriaId;
-
-    //console.log('🔍 Verificando duplicados:', { 
-    //  isEditMode: this.isEditMode, 
-    //  presupuestoId: this.presupuesto.id,
-    //  categoriaId,
-    //  targetUserId 
-    //});
-
-    // Buscar presupuestos existentes para esta categoría y usuario
+    // Buscar si ya existe un presupuesto para esa categoría
     this.budgetSvc.getByCategoryAndUser(categoriaId, targetUserId)
       .subscribe({
         next: (existingBudgets) => {
-          //console.log('📋 Presupuestos encontrados:', existingBudgets);
-          
-          // Si es modo edición, excluir el presupuesto actual
+          // Si editamos, excluimos el presupuesto actual de la verificación
           const duplicates = this.isEditMode 
             ? existingBudgets.filter(b => b.id !== this.presupuesto.id)
             : existingBudgets;
 
-          //console.log('🔎 Duplicados después del filtro:', duplicates);
-
           if (duplicates.length > 0) {
-            // Ya existe un presupuesto para esta categoría - mostrar modal
             this.loading = false;
             this.duplicateData = {
               categoryName: this.presupuesto.categoria,
@@ -249,65 +204,57 @@ export class FormComponent implements OnInit {
             return;
           }
 
-          // No hay duplicados, continuar con el guardado
+          // Si no hay duplicados, guardamos
           this.saveBudget();
         },
         error: (err) => {
-          console.error('Error al verificar duplicados:', err);
-          // En caso de error, continuar con el guardado
+          console.error('Error verificando duplicados:', err);
+          // En caso de error de red, intentamos guardar igual
           this.saveBudget();
         }
       });
   }
 
-  closeDuplicateModal() {
-    this.isDuplicateModalOpen = false;
-  }
-
   saveBudget() {
     this.loading = true;
 
-    // Asegurar que categoriaId y usuarioId sean números
+    // Preparar objeto para enviar (asegurar tipos)
     const presupuestoToSave = {
       ...this.presupuesto,
-      usuarioId: typeof this.presupuesto.usuarioId === 'string' 
-        ? parseInt(this.presupuesto.usuarioId, 10) 
-        : this.presupuesto.usuarioId,
-      categoriaId: typeof this.presupuesto.categoriaId === 'string' 
-        ? parseInt(this.presupuesto.categoriaId, 10) 
-        : this.presupuesto.categoriaId,
-      monto: typeof this.presupuesto.monto === 'string'
-        ? parseFloat(this.presupuesto.monto)
-        : this.presupuesto.monto
+      usuarioId: Number(this.presupuesto.usuarioId),
+      categoriaId: Number(this.presupuesto.categoriaId),
+      monto: parseFloat(this.presupuesto.monto.toString())
     };
 
     if (this.isEditMode && this.presupuesto.id) {
-      // Actualizar
       this.budgetSvc.update(this.presupuesto.id, presupuestoToSave).subscribe({
         next: () => {
           alert('✅ Presupuesto actualizado correctamente');
           this.router.navigate(['/budgets']);
         },
         error: (err) => {
-          //console.error('Error al actualizar:', err);
+          console.error('Error al actualizar:', err);
           alert('❌ Error al actualizar el presupuesto');
           this.loading = false;
         }
       });
     } else {
-      // Crear
       this.budgetSvc.create(presupuestoToSave).subscribe({
         next: () => {
           alert('✅ Presupuesto creado correctamente');
           this.router.navigate(['/budgets']);
         },
         error: (err) => {
-          //console.error('Error al crear:', err);
+          console.error('Error al crear:', err);
           alert('❌ Error al crear el presupuesto');
           this.loading = false;
         }
       });
     }
+  }
+
+  closeDuplicateModal() {
+    this.isDuplicateModalOpen = false;
   }
 
   onCancel() {

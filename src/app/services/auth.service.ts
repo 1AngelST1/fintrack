@@ -1,86 +1,116 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment.production';
-import { Observable, throwError } from 'rxjs';
-import { map, delay, switchMap } from 'rxjs/operators';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../environments/environment'; 
+import { Observable, tap, map, catchError, throwError, BehaviorSubject } from 'rxjs';
 import { Usuario } from '../shared/interfaces/usuario';
+
+interface LoginResponse {
+  token: string;
+  user: Usuario;
+}
+
+interface CheckEmailResponse {
+  exists: boolean;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  // La URL base: http://127.0.0.1:8000/api/users
   private api = `${environment.apiUrl}/users`;
+
+  // --- LÓGICA REACTIVA (Para actualizar Navbar en tiempo real) ---
+  // 1. Inicializamos con lo que haya en localStorage (o null)
+  private userSubject = new BehaviorSubject<Usuario | null>(this.getCurrentUser());
+  
+  // 2. Exponemos el observable para que el Navbar se suscriba
+  public user$ = this.userSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
-  // LOGIN SIMULADO
-  login(correo: string, password: string): Observable<any> {
-    return this.http.get<Usuario[]>(`${this.api}?correo=${correo}`).pipe(
-      map(users => {
-        const user = users[0];
-        if (!user) {
-          throw new Error('Usuario no encontrado');
-        }
-        if (user.password !== password) {
-          throw new Error('Contraseña incorrecta');
-        }
+  // --- HELPER: Obtener cabeceras con Token ---
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    let headers = new HttpHeaders();
+    if (token) {
+      // IMPORTANTE: Si usas JWT cambia 'Token' por 'Bearer'
+      headers = headers.set('Authorization', `Token ${token}`);
+    }
+    return headers;
+  }
 
-        // Simulamos token JWT
-        const token = btoa(`${user.correo}:${new Date().getTime()}`);
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
-
-        return { token, user };
+  // --- LOGIN ---
+  login(correo: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.api}/login`, { correo, password }).pipe(
+      tap(response => {
+        if (response.token) {
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('user', JSON.stringify(response.user));
+          
+          // AVISAR A LOS COMPONENTES QUE EL USUARIO CAMBIÓ
+          this.userSubject.next(response.user);
+        }
       }),
-      delay(500)
+      catchError(error => {
+        return throwError(() => new Error('Credenciales incorrectas o error en el servidor'));
+      })
     );
   }
 
-  // VERIFICAR SI CORREO YA EXISTE
-  checkEmailExists(correo: string): Observable<boolean> {
-    return this.http.get<Usuario[]>(`${this.api}?correo=${correo}`).pipe(
-      map(users => users.length > 0)
-    );
-  }
-
-  // REGISTRO
+  // --- REGISTRO ---
   register(user: Usuario): Observable<Usuario> {
-    // Primero verificamos si el correo ya existe
-    return this.checkEmailExists(user.correo).pipe(
-      switchMap(exists => {
-        if (exists) {
-          return throwError(() => new Error('El correo ya está registrado'));
+    return this.http.post<Usuario>(`${this.api}/register`, user).pipe(
+      catchError(error => {
+        let errorMsg = 'Error al registrar usuario';
+        if (error.error && typeof error.error === 'object') {
+          const firstKey = Object.keys(error.error)[0];
+          errorMsg = `${firstKey}: ${error.error[firstKey]}`;
         }
-        return this.http.post<Usuario>(this.api, user);
-      }),
-      delay(500)
+        return throwError(() => new Error(errorMsg));
+      })
     );
   }
 
-  // LOGOUT 
+  // --- VERIFICAR EMAIL ---
+  checkEmailExists(correo: string): Observable<boolean> {
+    return this.http.get<CheckEmailResponse>(`${this.api}/check-email?correo=${correo}`).pipe(
+      map(response => response.exists)
+    );
+  }
+
+  // --- ACTUALIZAR PERFIL ---
+  updateProfile(id: number, data: Partial<Usuario>): Observable<Usuario> {
+    const headers = this.getAuthHeaders();
+    
+    // NOTA: Sin barra "/" al final para evitar error 404 en Django
+    return this.http.patch<Usuario>(`${this.api}/${id}`, data, { headers }).pipe(
+      map(user => {
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        const updatedUser = { ...currentUser, ...user };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        
+        // IMPORTANTE: AVISAR AL NAVBAR QUE EL NOMBRE CAMBIÓ
+        this.userSubject.next(updatedUser);
+        
+        return updatedUser;
+      })
+    );
+  }
+
+  // --- UTILIDADES ---
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    
+    // LIMPIAR EL ESTADO REACTIVO
+    this.userSubject.next(null);
   }
 
-  // OBTENER USUARIO ACTUAL 
   getCurrentUser(): Usuario | null {
     const data = localStorage.getItem('user');
     return data ? JSON.parse(data) : null;
   }
 
-  // COMPROBAR SESIÓN 
   isLoggedIn(): boolean {
     return !!localStorage.getItem('token');
-  }
-
-  // ACTUALIZAR PERFIL
-  updateProfile(userId: number, updates: Partial<Usuario>): Observable<Usuario> {
-    return this.http.patch<Usuario>(`${this.api}/${userId}`, updates).pipe(
-      map(updatedUser => {
-        // Actualizar usuario en localStorage
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-        return updatedUser;
-      }),
-      delay(300)
-    );
   }
 }

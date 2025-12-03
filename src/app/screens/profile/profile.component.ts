@@ -63,9 +63,11 @@ export class ProfileComponent implements OnInit {
       apellidos: this.form.value.apellidos
     };
 
-    // Solo actualizar password si se ingresó uno nuevo
-    if (this.form.value.password) {
-      updates.password = this.form.value.password;
+    // LÓGICA IMPORTANTE:
+    // Solo enviar el password si el usuario escribió algo en el campo.
+    const passValue = this.form.value.password;
+    if (passValue && passValue.trim().length > 0) {
+      updates.password = passValue;
     }
 
     this.authService.updateProfile(this.currentUser.id, updates).subscribe({

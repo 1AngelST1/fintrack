@@ -136,17 +136,15 @@ export class FormComponent implements OnInit {
     this.categoriesService.checkDuplicateByName(nombre, usuarioId, this.categoryId || undefined).subscribe({
       next: (isDuplicate) => {
         if (isDuplicate) {
-          // Mostrar modal de duplicado
           this.loading = false;
           this.duplicateCategoryName = nombre;
           this.isDuplicateModalOpen = true;
           return;
         }
 
-        // No es duplicado, proceder a guardar
         const categoriaData = {
-          usuarioId: usuarioId,
           nombre: nombre,
+          usuario: usuarioId, // Enviamos el ID del usuario seleccionado
           tipo: this.form.value.tipo,
           color: this.form.value.color,
           estado: this.form.value.estado ?? true
@@ -156,10 +154,10 @@ export class FormComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al verificar duplicados:', err);
-        // En caso de error, continuar con el guardado
+        // En caso de error, intentar guardar de todas formas
         const categoriaData = {
-          usuarioId: usuarioId,
           nombre: nombre,
+          usuario: usuarioId,
           tipo: this.form.value.tipo,
           color: this.form.value.color,
           estado: this.form.value.estado ?? true
@@ -170,10 +168,12 @@ export class FormComponent implements OnInit {
   }
 
   saveCategory(categoriaData: any) {
-
     if (this.isEditMode && this.categoryId) {
-      // Actualizar categoría existente
-      this.categoriesService.update(this.categoryId, categoriaData).subscribe({
+      // Actualizar
+      const payload = { ...categoriaData } as any;
+      delete payload.usuario; // No enviamos usuario al editar
+
+      this.categoriesService.update(this.categoryId, payload).subscribe({
         next: () => {
           this.successMessage = 'Categoría actualizada exitosamente';
           setTimeout(() => {
@@ -187,7 +187,7 @@ export class FormComponent implements OnInit {
         }
       });
     } else {
-      // Crear nueva categoría
+      // Crear
       this.categoriesService.create(categoriaData).subscribe({
         next: () => {
           this.successMessage = 'Categoría creada exitosamente';
