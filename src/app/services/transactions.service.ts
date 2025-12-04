@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http'; // <--- Importar HttpHeaders
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { environment } from '../../environments/environment'; // Asegúrate que sea el environment correcto
+import { environment } from '../../environments/environment.production'; // Asegúrate que sea el environment correcto
 import { Movimiento } from '../shared/interfaces/movimiento';
 import { AuthService } from './auth.service';
 
