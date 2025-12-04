@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ReportsService } from '../../services/reports.service';
+import { TransactionsService } from '../../services/transactions.service';
 import { AuthService } from '../../services/auth.service';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
@@ -141,7 +141,7 @@ export class ReportsComponent implements OnInit {
   };
 
   constructor(
-    private reportsService: ReportsService,
+    private transactionsService: TransactionsService,
     private authService: AuthService
   ) {}
 
@@ -170,64 +170,59 @@ export class ReportsComponent implements OnInit {
     }
 
     // Cargar gráfico de pastel (gastos por categoría)
-    this.reportsService.getExpensesByCategory(filters).subscribe(data => {
-      // Crear nuevo objeto para forzar detección de cambios
-      this.pieChartData = {
-        labels: Object.keys(data),
-        datasets: [{
-          data: Object.values(data),
-          backgroundColor: [
-            '#4f8ef7',
-            '#e67e22',
-            '#27ae60',
-            '#e74c3c',
-            '#9b59b6',
-            '#f39c12',
-            '#1abc9c',
-            '#34495e',
-            '#16a085',
-            '#c0392b'
-          ]
-        }]
-      };
+    this.transactionsService.getGastosPorCategoria(filters).subscribe({
+      next: (data: any[]) => {
+        const labels = data.map(item => item.categoria);
+        const values = data.map(item => item.total);
+
+        this.pieChartData = {
+          labels: labels,
+          datasets: [{
+            data: values,
+            backgroundColor: this.pieChartData.datasets[0].backgroundColor
+          }]
+        };
+      },
+      // CORRECCIÓN: Agregado tipo 'any' para evitar error TS7006
+      error: (err: any) => console.error('Error cargando gráfico pastel:', err)
     });
 
-    // Cargar gráfico de línea (evolución mensual)
-    this.reportsService.getMonthlyEvolution(filters).subscribe(data => {
-      const labels = data.map(d => {
-        // Formatear mes: "2024-01" -> "Enero 2024"
-        const [year, month] = d.mes.split('-');
-        const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-        return `${meses[parseInt(month) - 1]} ${year}`;
-      });
-      
-      // Crear nuevo objeto para forzar detección de cambios
-      this.lineChartData = {
-        labels,
-        datasets: [
-          {
-            data: data.map(d => d.ingresos),
-            label: 'Ingresos',
-            borderColor: '#27ae60',
-            backgroundColor: 'rgba(39, 174, 96, 0.1)',
-            tension: 0.4,
-            fill: true
-          },
-          {
-            data: data.map(d => d.gastos),
-            label: 'Gastos',
-            borderColor: '#e74c3c',
-            backgroundColor: 'rgba(231, 76, 60, 0.1)',
-            tension: 0.4,
-            fill: true
-          }
-        ]
-      };
+    // B. Gráfico de Línea
+    this.transactionsService.getMonthlyEvolution(filters).subscribe({
+      next: (data: any[]) => {
+        const labels = data.map(item => {
+          const [year, month] = item.mes.split('-');
+          const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+          return `${meses[parseInt(month) - 1]} ${year}`;
+        });
+
+        this.lineChartData = {
+          labels: labels,
+          datasets: [
+            {
+              data: data.map(item => item.ingresos),
+              label: 'Ingresos',
+              borderColor: '#27ae60',
+              backgroundColor: 'rgba(39, 174, 96, 0.1)',
+              fill: true,
+              tension: 0.4
+            },
+            {
+              data: data.map(item => item.gastos),
+              label: 'Gastos',
+              borderColor: '#e74c3c',
+              backgroundColor: 'rgba(231, 76, 60, 0.1)',
+              fill: true,
+              tension: 0.4
+            }
+          ]
+        };
+      },
+      // CORRECCIÓN: Agregado tipo 'any'
+      error: (err: any) => console.error('Error cargando evolución mensual:', err)
     });
   }
-
-  aplicarFiltros() {
+aplicarFiltros() {
     this.loadReports();
   }
 

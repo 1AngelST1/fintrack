@@ -17,7 +17,19 @@ export class TransactionsService {
     private auth: AuthService
   ) { }
 
-  // --- HELPER PARA HEADERS ---
+  // --- HELPER: Convertir DD/MM/YYYY a YYYY-MM-DD ---
+  private convertDate(dateString: string): string {
+    if (!dateString) return '';
+    if (dateString.includes('/')) {
+        const parts = dateString.split('/');
+        if (parts.length === 3) {
+            return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+        }
+    }
+    return dateString;
+  }
+
+  // --- HELPER 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
     let headers = new HttpHeaders();
@@ -159,21 +171,51 @@ export class TransactionsService {
     );
   }
 
-  getGastosPorCategoria(filters = {}): Observable<{ categoria: string; total: number }[]> {
+getGastosPorCategoria(filters = {}): Observable<any[]> {
     return this.getAll({ ...filters, tipo: 'Gasto' }).pipe(
       map(list => {
         const agrupado = list.reduce((acc, t) => {
           const cat = t.categoria || 'Sin categoría';
-          if (!acc[cat]) {
-            acc[cat] = 0;
-          }
-          acc[cat] += t.monto || 0;
+          if (!acc[cat]) acc[cat] = 0;
+          acc[cat] += Number(t.monto) || 0;
           return acc;
         }, {} as Record<string, number>);
 
         return Object.entries(agrupado)
           .map(([categoria, total]) => ({ categoria, total }))
           .sort((a, b) => b.total - a.total);
+      })
+    );
+  }
+
+  getMonthlyEvolution(filters: any = {}): Observable<any[]> {
+    return this.getAll(filters).pipe(
+      map(list => {
+        const grouped = list.reduce((acc, mov) => {
+            const fechaStr = String(mov.fecha);
+            // Extraer YYYY-MM
+            const monthKey = fechaStr.length >= 7 ? fechaStr.substring(0, 7) : 'Sin fecha';
+
+            if (!acc[monthKey]) {
+                acc[monthKey] = { ingresos: 0, gastos: 0 };
+            }
+
+            const monto = Number(mov.monto) || 0;
+            if (mov.tipo === 'Ingreso') {
+                acc[monthKey].ingresos += monto;
+            } else if (mov.tipo === 'Gasto') {
+                acc[monthKey].gastos += monto;
+            }
+            return acc;
+        }, {} as Record<string, { ingresos: number, gastos: number }>);
+        
+        return Object.entries(grouped)
+            .map(([mes, data]) => ({ 
+                mes, 
+                ingresos: data.ingresos, 
+                gastos: data.gastos 
+            }))
+            .sort((a, b) => a.mes.localeCompare(b.mes));
       })
     );
   }

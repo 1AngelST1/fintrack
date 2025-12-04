@@ -8,15 +8,13 @@ import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 import { routes } from './app.routes';
 
-// --- IMPORTANTE: Importar el interceptor aquí ---
+
 import { authInterceptor } from './shared/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes, withHashLocation()),
     
-    // --- CORRECCIÓN AQUÍ ---
-    // Usamos paréntesis (), no dos puntos :
     provideHttpClient(
       withInterceptors([authInterceptor])
     ),

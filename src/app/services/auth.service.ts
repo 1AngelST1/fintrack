@@ -15,10 +15,9 @@ interface CheckEmailResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  // La URL base: http://127.0.0.1:8000/api/users
   private api = `${environment.apiUrl}/users`;
 
-  // --- LÓGICA REACTIVA (Para actualizar Navbar en tiempo real) ---
+  // --- LÓGICA REACTIVA 
   // 1. Inicializamos con lo que haya en localStorage (o null)
   private userSubject = new BehaviorSubject<Usuario | null>(this.getCurrentUser());
   

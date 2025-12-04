@@ -18,7 +18,6 @@ export interface Presupuesto {
   providedIn: 'root'
 })
 export class BudgetsService {
-  // [CORRECCIÓN] Agregamos la barra '/' al final para evitar el Error 500 en Django
   private apiUrl = `${environment.apiUrl}/budgets/`;
 
   constructor(private http: HttpClient) { }

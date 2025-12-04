@@ -4,8 +4,7 @@ import { Injectable, signal } from '@angular/core';
   providedIn: 'root'
 })
 export class SidebarService {
-  // Usamos signals de Angular para reactividad
-  // Iniciar colapsado en móvil, expandido en desktop
+
   isCollapsed = signal(this.isMobile());
 
   private isMobile(): boolean {

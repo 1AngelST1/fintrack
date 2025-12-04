@@ -20,8 +20,6 @@ export class CategoriesService {
     return this.http.get<Categoria[]>(this.apiUrl);
   }
 
-  // [CORRECCIÓN 2] Ajustamos concatenación: `${this.apiUrl}${id}/` 
-  // Esto genera: .../api/categories/1/ (con barra final)
   getById(id: number): Observable<Categoria> {
     return this.http.get<Categoria>(`${this.apiUrl}${id}/`);
   }
@@ -45,12 +43,10 @@ export class CategoriesService {
     return this.http.get<Categoria[]>(`${this.apiUrl}?tipo=${tipo}`);
   }
 
-  // CREATE: Al tener apiUrl la barra final, el POST funciona correctamente
   create(categoria: Partial<Categoria>): Observable<Categoria> {
     return this.http.post<Categoria>(this.apiUrl, categoria);
   }
 
-  // UPDATE: Aseguramos barra final .../id/
   update(id: number, categoria: Partial<Categoria>): Observable<Categoria> {
     return this.http.put<Categoria>(`${this.apiUrl}${id}/`, categoria);
   }
@@ -104,7 +100,6 @@ export class CategoriesService {
   }
 
   inactivate(id: number): Observable<Categoria> {
-    // PATCH: Aseguramos barra final
     return this.http.patch<Categoria>(`${this.apiUrl}${id}/`, { estado: false });
   }
 
@@ -166,7 +161,6 @@ export class CategoriesService {
   }
 
   delete(id: number): Observable<void> {
-    // DELETE: Aseguramos barra final
     return this.http.delete<void>(`${this.apiUrl}${id}/`);
   }
 }

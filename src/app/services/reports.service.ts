@@ -14,8 +14,6 @@ export class ReportsService {
   getMonthlyBalance(filters: { usuarioId?: number; fechaDesde?: string; fechaHasta?: string } = {}) {
     let params = new HttpParams();
     if (filters.usuarioId) params = params.set('usuarioId', String(filters.usuarioId));
-    
-    // [CORRECCIÓN] Usar los nombres que Django espera
     if (filters.fechaDesde) params = params.set('fechaDesde', filters.fechaDesde);
     if (filters.fechaHasta) params = params.set('fechaHasta', filters.fechaHasta);
 
@@ -37,7 +35,6 @@ export class ReportsService {
     let params = new HttpParams();
     if (filters.usuarioId) params = params.set('usuarioId', String(filters.usuarioId));
     
-    // [CORRECCIÓN] Usar los nombres que Django espera
     if (filters.fechaDesde) params = params.set('fechaDesde', filters.fechaDesde);
     if (filters.fechaHasta) params = params.set('fechaHasta', filters.fechaHasta);
 

@@ -10,7 +10,7 @@ export const RoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   const allowedRoles: string[] = route.data?.['roles'] ?? [];
 
   if (!user) {
-    // Si no hay usuario, enviar al login (AuthGuard debería manejar esto primero)
+    // Si no hay usuario, enviar al login 
     router.navigate(['/auth/login']);
     return false;
   }

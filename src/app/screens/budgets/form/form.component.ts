@@ -182,34 +182,41 @@ export class FormComponent implements OnInit {
 
   checkDuplicateAndSave() {
     const targetUserId = Number(this.presupuesto.usuarioId);
-    const categoriaId = Number(this.presupuesto.categoriaId);
+    const categoriaId = Number(this.presupuesto.categoriaId); // Categoría que queremos guardar
 
-    // Buscar si ya existe un presupuesto para esa categoría
+    // Buscar si ya existe un presupuesto
     this.budgetSvc.getByCategoryAndUser(categoriaId, targetUserId)
       .subscribe({
         next: (existingBudgets) => {
-          // Si editamos, excluimos el presupuesto actual de la verificación
-          const duplicates = this.isEditMode 
-            ? existingBudgets.filter(b => b.id !== this.presupuesto.id)
-            : existingBudgets;
+          
+          // --- CORRECCIÓN CLAVE AQUÍ ---
+          // Aseguramos que lo que llegó del servidor REALMENTE sea de esta categoría.
+          // Esto soluciona el problema si el backend devuelve más datos de los necesarios.
+          const realDuplicates = existingBudgets.filter(b => Number(b.categoriaId) === categoriaId);
 
-          if (duplicates.length > 0) {
+          // Si editamos, excluimos el presupuesto actual de la verificación
+          const finalDuplicates = this.isEditMode 
+            ? realDuplicates.filter(b => b.id !== this.presupuesto.id)
+            : realDuplicates;
+
+          if (finalDuplicates.length > 0) {
             this.loading = false;
+            // Mostramos los datos del presupuesto que YA EXISTE
             this.duplicateData = {
-              categoryName: this.presupuesto.categoria,
-              existingAmount: duplicates[0].monto,
-              existingPeriod: duplicates[0].periodo
+              categoryName: this.presupuesto.categoria, // Nombre de la categoría actual
+              existingAmount: finalDuplicates[0].monto,
+              existingPeriod: finalDuplicates[0].periodo
             };
             this.isDuplicateModalOpen = true;
             return;
           }
 
-          // Si no hay duplicados, guardamos
+          // Si no hay duplicados reales, guardamos
           this.saveBudget();
         },
         error: (err) => {
           console.error('Error verificando duplicados:', err);
-          // En caso de error de red, intentamos guardar igual
+          // En caso de error de red, intentamos guardar igual y que el backend decida
           this.saveBudget();
         }
       });
@@ -218,7 +225,8 @@ export class FormComponent implements OnInit {
   saveBudget() {
     this.loading = true;
 
-    // Preparar objeto para enviar (asegurar tipos)
+    // 1. DEFINICIÓN DE LA VARIABLE QUE FALTABA
+    // Preparamos el objeto asegurando que los IDs y montos sean números
     const presupuestoToSave = {
       ...this.presupuesto,
       usuarioId: Number(this.presupuesto.usuarioId),
@@ -226,31 +234,31 @@ export class FormComponent implements OnInit {
       monto: parseFloat(this.presupuesto.monto.toString())
     };
 
-    if (this.isEditMode && this.presupuesto.id) {
-      this.budgetSvc.update(this.presupuesto.id, presupuestoToSave).subscribe({
-        next: () => {
-          alert('✅ Presupuesto actualizado correctamente');
-          this.router.navigate(['/budgets']);
-        },
-        error: (err) => {
-          console.error('Error al actualizar:', err);
-          alert('❌ Error al actualizar el presupuesto');
-          this.loading = false;
+    // 2. DECIDIR SI ES CREAR O ACTUALIZAR
+    const request = (this.isEditMode && this.presupuesto.id)
+      ? this.budgetSvc.update(this.presupuesto.id, presupuestoToSave)
+      : this.budgetSvc.create(presupuestoToSave);
+
+    // 3. EJECUTAR LA PETICIÓN
+    request.subscribe({
+      next: () => {
+        alert(this.isEditMode ? '✅ Presupuesto actualizado correctamente' : '✅ Presupuesto creado correctamente');
+        this.router.navigate(['/budgets']);
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error('Error al guardar:', err);
+        
+        // Manejo de errores específicos del Backend
+        if (err.status === 400 && err.error?.non_field_errors) {
+           alert('⚠️ ' + err.error.non_field_errors[0]);
+        } else if (err.status === 400 && err.error?.detail) {
+           alert('⚠️ ' + err.error.detail);
+        } else {
+           alert('❌ Error al guardar el presupuesto. Verifica los datos.');
         }
-      });
-    } else {
-      this.budgetSvc.create(presupuestoToSave).subscribe({
-        next: () => {
-          alert('✅ Presupuesto creado correctamente');
-          this.router.navigate(['/budgets']);
-        },
-        error: (err) => {
-          console.error('Error al crear:', err);
-          alert('❌ Error al crear el presupuesto');
-          this.loading = false;
-        }
-      });
-    }
+      }
+    });
   }
 
   closeDuplicateModal() {
